@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+
+  
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Dynamic hooking with Frida">  
+
+
+  
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Dynamic hooking with Frida" />
+  <meta property="og:image" content="https://hanteed.github.io/images/avatar.png" />
+  <meta property="og:url" content="https://hanteed.github.io/posts/dynamic_hooking/">
+  <meta property="og:title" content="Dynamic (offset based) hooking with Frida">
+  <meta property="og:site_name" content="hanteed.github.io">
+
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:domain" content="hanteed.github.io">
+  <meta property="twitter:url" content="https://hanteed.github.io/posts/dynamic_hooking/">
+  <meta name="twitter:title" content="Dynamic (offset based) hooking with Frida">
+  <meta name="twitter:description" content="Dynamic hooking with Frida">
+  <meta name="twitter:image" content="https://hanteed.github.io/images/avatar.png">
+  
+  <title>
+    
+      Dynamic (offset based) hooking with Frida
+    
+  </title>
+
+
+  <link rel="icon" type="image/gif" href="/" />
+   
+
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.710543bd5ca7900d6df6e4617f0ab7505e84ec4bd6e989b2f73a6a5d396cf5e5aef6870d3ec10c651ebc25a7235e219786bee838b6a289b4b1520954c2a7ca66.css" integrity="sha512-cQVDvVynkA1t9uRhfwq3UF6E7EvW6Ymy9zpqXTls9eWu9ocNPsEMZR68JacjXiGXhr7oOLaiibSxUglUwqfKZg==" />
+
+  
+
+  
+  
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyDiwQ2i5yQ1ovB2aRLBleEKoF-b7bvn8Ns",
+        authDomain: "blog-74cf1.firebaseapp.com",
+        projectId: "blog-74cf1",
+        storageBucket: "blog-74cf1.firebasestorage.app",
+        messagingSenderId: "918222468439",
+        appId: "1:918222468439:web:5f67ed5430881fa0b2fa12",
+        measurementId: ""
+      };
+
+      var app = firebase.initializeApp(firebaseConfig);
+      var db = firebase.firestore();
+      var auth = firebase.auth();
+    </script>
+  
+
+</head>
+
+    <body a="dark">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">/home</a>
+
+
+
+
+<script src="/js/theme-toggle.f10bb0c6283b259e63664053a20ccc48c8b0980e44bceece1c10401c529c2040.js" integrity="sha256-8Quwxig7JZ5jZkBTogzMSMiwmA5EvO7OHBBAHFKcIEA="></script>
+
+<button style="float: right; background: none; outline: none;" onclick="toggleTheme()">
+
+<svg class="w-6 h-6 text-gray-800 dark:text-white theme" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M7.05 4.05A7 7 0 0 1 19 9c0 2.407-1.197 3.874-2.186 5.084l-.04.048C15.77 15.362 15 16.34 15 18a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1c0-1.612-.77-2.613-1.78-3.875l-.045-.056C6.193 12.842 5 11.352 5 9a7 7 0 0 1 2.05-4.95ZM9 21a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2h-4a1 1 0 0 1-1-1Zm1.586-13.414A2 2 0 0 1 12 7a1 1 0 1 0 0-2 4 4 0 0 0-4 4 1 1 0 0 0 2 0 2 2 0 0 1 .586-1.414Z" clip-rule="evenodd"/>
+</svg>
+
+</button>
+
+
+
+
+
+
+<div class="article-container">
+  <article class="article-content">
+    <h1>Dynamic (offset based) hooking with Frida</h1>
+
+    <p class="post-meta">
+      <time datetime="2026-02-02 14:39:41 &#43;0100 CET">
+        2026-02-02
+      </time>
+      
+      
+      
+        <span class="meta-separator">•</span>
+      
+      
+      
+        <span class="meta-item">
+  
+  
+    
+    
+  
+  <span id="views_posts/dynamic_hooking.md" class="counter-loading" title="views">...</span>
+  <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+  </svg>
+</span>
+
+      
+      
+      
+        <span class="meta-separator">•</span>
+      
+      
+      
+        <span class="meta-item">
+  
+  
+    
+    
+  
+  <span id="likes_posts/dynamic_hooking.md" class="counter-loading" title="likes">...</span>
+  <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+  </svg>
+</span>
+
+      
+      
+      
+        <span class="meta-separator">•</span>
+        <span class="meta-item">
+  <button id="button_likes" class="like-button" title="Click to like">
+    <svg id="button_likes_heart" class="heart-icon filled" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>
+    <svg id="button_likes_empty_heart" class="heart-icon empty" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>
+    <span id="button_likes_text">Like</span>
+  </button>
+</span>
+
+      
+    </p>
+
+    <h1 id="introduction">Introduction</h1>
+<p>Recently, I&rsquo;ve been reversing some iOS functions inside private frameworks. I needed to clearly understand what arguments
+they took and why (since it&rsquo;s Objective-C, it can sometimes be tricky), so I&rsquo;ve decided to jump into Frida and hook them.
+One common problem you will usually encounter is not finding the symbol you want because it&rsquo;s not exported.
+This post will cover how I managed to bypass this problem using some logic.</p>
+<h1 id="methodology">Methodology</h1>
+<p>Like we&rsquo;ve said before, sometimes, you cannot directly hook onto a function with <code>frida-trace</code> like you would do
+normally. The function I was interested in was <code>_updateClientStateCondition:newValue:</code> from the <code>FigCaptureClientSessionMonitor</code>
+class inside the <code>CMCapture</code> private framework. But sadly, I couldn&rsquo;t find it when tracing all the method calls inside the binary.
+However, we are not forced to use the resolved symbols from Frida, we can also directly use full addresses.</p>
+<p>In order to do this, we will need three things to proceed: our module’s base address at runtime, our function’s address,
+and the module’s base address. This will allow us to compute an offset that we can directly apply to the module’s base address
+when running Frida. These addresses can be obtained through a disassembler like IDA or Binary Ninja. Once that&rsquo;s done, we will
+just need to write our script, dynamically resolving our function&rsquo;s address to hook onto it (if you are familiar
+with binary exploitation and bypassing ASLR, it&rsquo;s kind of the same thing, instead here our &rsquo;leak&rsquo; of the
+base address is given by Frida).</p>
+<h1 id="example">Example</h1>
+<p>Here we will hook onto <code>-[FigCaptureClientSessionMonitor _updateClientStateCondition:newValue:]</code> inside the <code>CMCapture</code>
+private Framework.</p>
+<p>To obtain the <code>CMCapture</code> base address inside Binary Ninja, you can open the DSC Triage view (where you load your frameworks)
+and get the address. In our case it will be <code>0x1a3ce1000</code>.</p>
+<p>Once that&rsquo;s done you can open the framework and search for the function you want. Here <code>_updateClientStateCondition</code> is at <code>0x1a3d55470</code>.</p>
+<p>Finally to obtain our base address through Frida, you can use <code>Process.findModuleByName(&quot;your process&quot;)</code> followed by <code>module.base</code>.</p>
+<p>Everything can be packed inside a little script that will look like the following:</p>
+<div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">14
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">15
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">16
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">17
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">18
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">19
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">20
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">21
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">22
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#e67e80">const</span> CMCaptureBinjaBaseAddress <span style="color:#7a8478">=</span> <span style="color:#d699b6">0x1a3ce1000</span>;
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">const</span> _updateClientStateConditionAddress <span style="color:#7a8478">=</span> <span style="color:#d699b6">0x1a3d55470</span>;
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">const</span> offset <span style="color:#7a8478">=</span> _updateClientStateConditionAddress <span style="color:#7a8478">-</span> CMCaptureBinjaBaseAddress;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">const</span> module <span style="color:#7a8478">=</span> Process.findModuleByName(<span style="color:#b2c98f">&#34;CMCapture&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">const</span> CMCaptureBaseAddress <span style="color:#7a8478">=</span> module.base;
+</span></span><span style="display:flex;"><span>console.log(<span style="color:#b2c98f">`[+] CMCapture base address: </span><span style="color:#b2c98f">${</span>CMCaptureBaseAddress<span style="color:#b2c98f">}</span><span style="color:#b2c98f">`</span>);
+</span></span><span style="display:flex;"><span>console.log(<span style="color:#b2c98f">`[+] Calculated offset: 0x</span><span style="color:#b2c98f">${</span>offset.toString(<span style="color:#d699b6">16</span>)<span style="color:#b2c98f">}</span><span style="color:#b2c98f">`</span>);
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">const</span> functionAddress <span style="color:#7a8478">=</span> CMCaptureBaseAddress.add(offset);
+</span></span><span style="display:flex;"><span>console.log(<span style="color:#b2c98f">`[+] Function address: </span><span style="color:#b2c98f">${</span>functionAddress<span style="color:#b2c98f">}</span><span style="color:#b2c98f">`</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>console.log(<span style="color:#b2c98f">`[+] Attaching to function`</span>);
+</span></span><span style="display:flex;"><span>Interceptor.attach(functionAddress, {
+</span></span><span style="display:flex;"><span>    onEnter<span style="color:#7a8478">:</span> <span style="color:#e67e80">function</span>(args){
+</span></span><span style="display:flex;"><span>        console.log(<span style="color:#b2c98f">&#34;[+] Entering function&#34;</span>);
+</span></span><span style="display:flex;"><span>        console.log(<span style="color:#b2c98f">`    -&gt; Arg0: </span><span style="color:#b2c98f">${</span>ObjC.<span style="color:#d699b6">Object</span>(args[<span style="color:#d699b6">0</span>])<span style="color:#b2c98f">}</span><span style="color:#b2c98f">`</span>);
+</span></span><span style="display:flex;"><span>        console.log(<span style="color:#b2c98f">`    -&gt; Arg1: </span><span style="color:#b2c98f">${</span>args[<span style="color:#d699b6">1</span>]<span style="color:#b2c98f">}</span><span style="color:#b2c98f">`</span>);
+</span></span><span style="display:flex;"><span>        console.log(<span style="color:#b2c98f">`    -&gt; Arg2: </span><span style="color:#b2c98f">${</span>args[<span style="color:#d699b6">2</span>].readUInt()<span style="color:#b2c98f">}</span><span style="color:#b2c98f">`</span>);
+</span></span><span style="display:flex;"><span>        console.log(<span style="color:#b2c98f">`    -&gt; Arg3: </span><span style="color:#b2c98f">${</span>ObjC.<span style="color:#d699b6">Object</span>(args[<span style="color:#d699b6">3</span>])<span style="color:#b2c98f">}</span><span style="color:#b2c98f">`</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>});
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>(here we print the args with the correct types corresponding to ObjC objects (selector &amp; class)).</p>
+<p>We can then attach to our process and launch our script:</p>
+<div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">14
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#7a8478">[</span>+<span style="color:#7a8478">]</span> CMCapture base address: 0x1d9095000
+</span></span><span style="display:flex;"><span><span style="color:#7a8478">[</span>+<span style="color:#7a8478">]</span> Calculated offset: 0x74470
+</span></span><span style="display:flex;"><span><span style="color:#7a8478">[</span>+<span style="color:#7a8478">]</span> Function address: 0x1d9109470
+</span></span><span style="display:flex;"><span><span style="color:#7a8478">[</span>+<span style="color:#7a8478">]</span> Attaching to <span style="color:#e67e80">function</span>
+</span></span><span style="display:flex;"><span><span style="color:#7a8478">[</span>+<span style="color:#7a8478">]</span> Entering <span style="color:#e67e80">function</span>
+</span></span><span style="display:flex;"><span>    -&gt; Arg0: &lt;FigCaptureClientSessionMonitor: 0xd14b3f160 pid: 651, ID: com.apple.camera, clientType: Application, state: Backgrounded <span style="color:#7a8478">(</span>bksAppState: BackgroundTaskSuspended, layout: No Apps<span style="color:#7a8478">)</span>&gt;
+</span></span><span style="display:flex;"><span>    -&gt; Arg1: 0x1b869694c
+</span></span><span style="display:flex;"><span>    -&gt; Arg2: <span style="color:#d699b6">0</span>
+</span></span><span style="display:flex;"><span>    -&gt; Arg3: <span style="color:#d699b6">2</span>
+</span></span><span style="display:flex;"><span><span style="color:#7a8478">[</span>+<span style="color:#7a8478">]</span> Entering <span style="color:#e67e80">function</span>
+</span></span><span style="display:flex;"><span>    -&gt; Arg0: &lt;FigCaptureClientSessionMonitor: 0xd14b3f160 pid: 651, ID: com.apple.camera, clientType: Application, state: Backgrounded <span style="color:#7a8478">(</span>bksAppState: BackgroundTaskSuspended, layout: No Apps<span style="color:#7a8478">)</span>&gt;
+</span></span><span style="display:flex;"><span>    -&gt; Arg1: 0x1b8696993
+</span></span><span style="display:flex;"><span>    -&gt; Arg2: <span style="color:#d699b6">2</span>
+</span></span><span style="display:flex;"><span>    -&gt; Arg3: <span style="color:#d699b6">8</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>And voilà! We have now hooked onto our function, and we are able to see its arguments.
+Keep in mind that every Objective-C function call implicitly includes the class and the selector as its first two arguments.</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>Although being pretty simple, this technique can be really useful during reversing as you can
+dynamically validate (or no) your hypothesis at runtime. However don&rsquo;t forget that
+frameworks can change from an iOS version to another so be sure to use the correct iOS version!</p>
+<h1 id="references">References</h1>
+<ul>
+<li><a href="https://frida.re/docs/javascript-api/">https://frida.re/docs/javascript-api/</a></li>
+</ul>
+
+  </article>
+
+  
+  
+    <aside class="toc-sidebar">
+      <nav class="toc-nav">
+        <h3 class="toc-title">Table of Contents</h3>
+        <div class="toc-content">
+          <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#methodology">Methodology</a></li>
+    <li><a href="#example">Example</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+    <li><a href="#references">References</a></li>
+  </ul>
+</nav>
+        </div>
+      </nav>
+    </aside>
+  
+</div>
+
+
+
+  
+  
+  
+    
+    <script
+      type="text/javascript"
+      src="/js/page.min.b791cafa46b01f6c8853d5689937d332a3d6bca245efd1d1b532cde15aee0283398a6d6be38548255ecdc06205d0e258e7bf58ccc93785c7b3f42d2dad0bc1bb.js"
+      integrity="sha512-t5HK&#43;kawH2yIU9VomTfTMqPWvKJF79HRtTLN4VruAoM5im1r44VIJV7NwGIF0OJY579YzMk3hcez9C0trQvBuw=="
+      data-oid="views_posts/dynamic_hooking.md"
+      data-oid-likes="likes_posts/dynamic_hooking.md"></script>
+  
+
+
+<br>
+<hr>
+
+<ul style="display: flex; list-style-type:none; justify-content: center; gap: 10px; ">
+
+    <li><a href="https://en.wikipedia.org/wiki/Rage-baiting" target=_blank><img src="../../../images/hatemac.jpg" width="88" height="31" alt="ragebait" /></a>
+
+    <li><a target=_blank><img src="../../../images/best_viewed_with_eyes.gif" width="88" height="31" alt="Big Brother" /></a>
+
+</ul>
+</div>
+        </main>
+
+  
+  <script
+    defer
+    type="text/javascript"
+    src="/js/process.min.f1d0d08541dff7184dc2ee55e60baddef27317370fb6c2bbf553a7c82597d90cbcf20f1d329baa6865d19c1d542e254bf62509ff257c5f65a9697a5a3057c547.js"
+    integrity="sha512-8dDQhUHf9xhNwu5V5gut3vJzFzcPtsK79VOnyCWX2Qy88g8dMpuqaGXRnB1ULiVL9iUJ/yV8X2WpaXpaMFfFRw=="></script>
+
+
+        
+          
+          
+            
+            <script
+              defer
+              type="text/javascript"
+              src="/js/toc-scroll.min.0f175c13d38b68ec23bb1680a85b5c255ad30a14642ff0941501cb8a509bf4c45e8e268e836491cd2b006cfdea7adc5d1a78b4f02622b70c05db41040fe6036e.js"
+              integrity="sha512-DxdcE9OLaOwjuxaAqFtcJVrTChRkL/CUFQHLilCb9MRejiaOg2SRzSsAbP3qetxdGni08CYitwwF20EED&#43;YDbg=="></script>
+          
+        
+    </body>
+</html>
