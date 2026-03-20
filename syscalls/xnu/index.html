@@ -1,0 +1,3371 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+
+  
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="">  
+
+
+  
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="XNU (macOS/iOS) BSD syscall table reference. Data sourced from bsd/kern/syscalls.master in the XNU kernel source. Only active syscalls are listed (nosys/enosys stubs excluded)." />
+  <meta property="og:image" content="https://hanteed.github.io/" />
+  <meta property="og:url" content="https://hanteed.github.io/syscalls/xnu/">
+  <meta property="og:title" content="XNU Syscalls">
+  <meta property="og:site_name" content="hanteed.github.io">
+
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:domain" content="hanteed.github.io">
+  <meta property="twitter:url" content="https://hanteed.github.io/syscalls/xnu/">
+  <meta name="twitter:title" content="XNU Syscalls">
+  <meta name="twitter:description" content="XNU (macOS/iOS) BSD syscall table reference. Data sourced from bsd/kern/syscalls.master in the XNU kernel source. Only active syscalls are listed (nosys/enosys stubs excluded).">
+  <meta name="twitter:image" content="https://hanteed.github.io/">
+  
+  <title>
+    
+      XNU Syscalls
+    
+  </title>
+
+
+  <link rel="icon" type="image/gif" href="/" />
+   
+
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.c5d98889d7b9c0be8d9cf9ddceca07d69672d4e347b69c599a8bedff956e1a835c89b5f35f4835b0e9da3de5ebbefc8435a75ec88ad2578fd69403b7c1cfd1e0.css" integrity="sha512-xdmIide5wL6NnPndzsoH1pZy1ONHtpxZmovt/5VuGoNcibXzX0g1sOnaPeXrvvyENadeyIrSV4/WlAO3wc/R4A==" />
+
+  
+
+  
+  
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyDiwQ2i5yQ1ovB2aRLBleEKoF-b7bvn8Ns",
+        authDomain: "blog-74cf1.firebaseapp.com",
+        projectId: "blog-74cf1",
+        storageBucket: "blog-74cf1.firebasestorage.app",
+        messagingSenderId: "918222468439",
+        appId: "1:918222468439:web:5f67ed5430881fa0b2fa12",
+        measurementId: ""
+      };
+
+      var app = firebase.initializeApp(firebaseConfig);
+      var db = firebase.firestore();
+      var auth = firebase.auth();
+    </script>
+  
+
+</head>
+
+    <body a="dark">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">/home</a>
+
+
+
+<script src="/js/theme-toggle.f10bb0c6283b259e63664053a20ccc48c8b0980e44bceece1c10401c529c2040.js" integrity="sha256-8Quwxig7JZ5jZkBTogzMSMiwmA5EvO7OHBBAHFKcIEA="></script>
+
+<button style="float: right; background: none; outline: none;" onclick="toggleTheme()">
+
+<svg class="w-6 h-6 text-gray-800 dark:text-white theme" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M7.05 4.05A7 7 0 0 1 19 9c0 2.407-1.197 3.874-2.186 5.084l-.04.048C15.77 15.362 15 16.34 15 18a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1c0-1.612-.77-2.613-1.78-3.875l-.045-.056C6.193 12.842 5 11.352 5 9a7 7 0 0 1 2.05-4.95ZM9 21a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2h-4a1 1 0 0 1-1-1Zm1.586-13.414A2 2 0 0 1 12 7a1 1 0 1 0 0-2 4 4 0 0 0-4 4 1 1 0 0 0 2 0 2 2 0 0 1 .586-1.414Z" clip-rule="evenodd"/>
+</svg>
+
+</button>
+
+
+
+
+
+
+<article>
+  <h1>XNU Syscalls</h1>
+
+  <p>XNU (macOS/iOS) BSD syscall table reference. Data sourced from <a href="https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/syscalls.master"><code>bsd/kern/syscalls.master</code></a> in the XNU kernel source. Only active syscalls are listed (<code>nosys</code>/<code>enosys</code> stubs excluded).</p>
+
+
+  <div class="syscall-controls">
+    <input type="text" id="syscallSearch" placeholder="Search by name, number, or argument type..." autofocus>
+    <span id="syscallCount"></span>
+  </div>
+
+  <div class="syscall-table-wrapper">
+    <table id="syscallTable">
+      <thead>
+        <tr>
+          <th class="col-nr" data-sort="nr">NR</th>
+          <th class="col-name" data-sort="name">Name</th>
+          <th class="col-return" data-sort="return">Return</th>
+          <th class="col-args">Arguments</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td class="col-nr">1</td>
+          <td class="col-name"><code>exit</code></td>
+          <td class="col-return"><code>void</code></td>
+          <td class="col-args"><span class="arg">int rval</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">2</td>
+          <td class="col-name"><code>fork</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">3</td>
+          <td class="col-name"><code>read</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t cbuf</span>, <span class="arg">user_size_t nbyte</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">4</td>
+          <td class="col-name"><code>write</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t cbuf</span>, <span class="arg">user_size_t nbyte</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">5</td>
+          <td class="col-name"><code>open</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">int flags</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">6</td>
+          <td class="col-name"><code>sys_close</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">7</td>
+          <td class="col-name"><code>wait4</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int pid</span>, <span class="arg">user_addr_t status</span>, <span class="arg">int options</span>, <span class="arg">user_addr_t rusage</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">9</td>
+          <td class="col-name"><code>link</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t link</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">10</td>
+          <td class="col-name"><code>unlink</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">12</td>
+          <td class="col-name"><code>sys_chdir</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">13</td>
+          <td class="col-name"><code>sys_fchdir</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">14</td>
+          <td class="col-name"><code>mknod</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">int mode</span>, <span class="arg">int dev</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">15</td>
+          <td class="col-name"><code>chmod</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">16</td>
+          <td class="col-name"><code>chown</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">int uid</span>, <span class="arg">int gid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">18</td>
+          <td class="col-name"><code>getfsstat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t buf</span>, <span class="arg">int bufsize</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">20</td>
+          <td class="col-name"><code>getpid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">23</td>
+          <td class="col-name"><code>setuid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uid_t uid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">24</td>
+          <td class="col-name"><code>getuid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">25</td>
+          <td class="col-name"><code>geteuid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">26</td>
+          <td class="col-name"><code>ptrace</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int req</span>, <span class="arg">pid_t pid</span>, <span class="arg">caddr_t addr</span>, <span class="arg">int data</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">27</td>
+          <td class="col-name"><code>recvmsg</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">struct msghdr *msg</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">28</td>
+          <td class="col-name"><code>sendmsg</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">caddr_t msg</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">29</td>
+          <td class="col-name"><code>recvfrom</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">void *buf</span>, <span class="arg">size_t len</span>, <span class="arg">int flags</span>, <span class="arg">struct sockaddr *from</span>, <span class="arg">int *fromlenaddr</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">30</td>
+          <td class="col-name"><code>accept</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">caddr_t name</span>, <span class="arg">socklen_t	*anamelen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">31</td>
+          <td class="col-name"><code>getpeername</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fdes</span>, <span class="arg">caddr_t asa</span>, <span class="arg">socklen_t *alen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">32</td>
+          <td class="col-name"><code>getsockname</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fdes</span>, <span class="arg">caddr_t asa</span>, <span class="arg">socklen_t *alen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">33</td>
+          <td class="col-name"><code>access</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">34</td>
+          <td class="col-name"><code>chflags</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">35</td>
+          <td class="col-name"><code>fchflags</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">36</td>
+          <td class="col-name"><code>sync</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">37</td>
+          <td class="col-name"><code>kill</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int pid</span>, <span class="arg">int signum</span>, <span class="arg">int posix</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">38</td>
+          <td class="col-name"><code>sys_crossarch_trap</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t name</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">39</td>
+          <td class="col-name"><code>getppid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">41</td>
+          <td class="col-name"><code>sys_dup</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">u_int fd</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">42</td>
+          <td class="col-name"><code>pipe</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">43</td>
+          <td class="col-name"><code>getegid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">46</td>
+          <td class="col-name"><code>sigaction</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int signum</span>, <span class="arg">struct __sigaction *nsa</span>, <span class="arg">struct sigaction *osa</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">47</td>
+          <td class="col-name"><code>getgid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">48</td>
+          <td class="col-name"><code>sigprocmask</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int how</span>, <span class="arg">user_addr_t mask</span>, <span class="arg">user_addr_t omask</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">49</td>
+          <td class="col-name"><code>getlogin</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *namebuf</span>, <span class="arg">u_int namelen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">50</td>
+          <td class="col-name"><code>setlogin</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *namebuf</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">51</td>
+          <td class="col-name"><code>acct</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">52</td>
+          <td class="col-name"><code>sigpending</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct sigvec *osv</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">53</td>
+          <td class="col-name"><code>sigaltstack</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct sigaltstack *nss</span>, <span class="arg">struct sigaltstack *oss</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">54</td>
+          <td class="col-name"><code>ioctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">u_long com</span>, <span class="arg">caddr_t data</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">55</td>
+          <td class="col-name"><code>reboot</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int opt</span>, <span class="arg">char *msg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">56</td>
+          <td class="col-name"><code>revoke</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">57</td>
+          <td class="col-name"><code>symlink</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span>, <span class="arg">char *link</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">58</td>
+          <td class="col-name"><code>readlink</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span>, <span class="arg">char *buf</span>, <span class="arg">int count</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">59</td>
+          <td class="col-name"><code>execve</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *fname</span>, <span class="arg">char **argp</span>, <span class="arg">char **envp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">60</td>
+          <td class="col-name"><code>umask</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int newmask</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">61</td>
+          <td class="col-name"><code>chroot</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">65</td>
+          <td class="col-name"><code>msync</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">caddr_ut addr</span>, <span class="arg">size_ut len</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">66</td>
+          <td class="col-name"><code>vfork</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">67</td>
+          <td class="col-name"><code>oslog_coproc_reg</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *uuid</span>, <span class="arg">const char *file_path</span>, <span class="arg">size_t file_path_len</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">68</td>
+          <td class="col-name"><code>oslog_coproc</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">void *buff</span>, <span class="arg">uint64_t buff_len</span>, <span class="arg">uint32_t type</span>, <span class="arg">const char *uuid</span>, <span class="arg">uint64_t timestamp</span>, <span class="arg">uint32_t offset</span>, <span class="arg">uint32_t stream_log</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">73</td>
+          <td class="col-name"><code>munmap</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">caddr_ut addr</span>, <span class="arg">size_ut len</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">74</td>
+          <td class="col-name"><code>mprotect</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">caddr_ut addr</span>, <span class="arg">size_ut len</span>, <span class="arg">int prot</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">75</td>
+          <td class="col-name"><code>madvise</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">caddr_ut addr</span>, <span class="arg">size_ut len</span>, <span class="arg">int behav</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">78</td>
+          <td class="col-name"><code>mincore</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">caddr_ut addr</span>, <span class="arg">size_ut len</span>, <span class="arg">user_addr_t vec</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">79</td>
+          <td class="col-name"><code>getgroups</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">u_int gidsetsize</span>, <span class="arg">gid_t *gidset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">80</td>
+          <td class="col-name"><code>setgroups</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">u_int gidsetsize</span>, <span class="arg">gid_t *gidset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">81</td>
+          <td class="col-name"><code>getpgrp</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">82</td>
+          <td class="col-name"><code>setpgid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int pid</span>, <span class="arg">int pgid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">83</td>
+          <td class="col-name"><code>setitimer</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">u_int which</span>, <span class="arg">struct itimerval *itv</span>, <span class="arg">struct itimerval *oitv</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">85</td>
+          <td class="col-name"><code>swapon</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">86</td>
+          <td class="col-name"><code>getitimer</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">u_int which</span>, <span class="arg">struct itimerval *itv</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">89</td>
+          <td class="col-name"><code>sys_getdtablesize</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">90</td>
+          <td class="col-name"><code>sys_dup2</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">u_int from</span>, <span class="arg">u_int to</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">92</td>
+          <td class="col-name"><code>sys_fcntl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">int cmd</span>, <span class="arg">long arg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">93</td>
+          <td class="col-name"><code>select</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int nd</span>, <span class="arg">u_int32_t *in</span>, <span class="arg">u_int32_t *ou</span>, <span class="arg">u_int32_t *ex</span>, <span class="arg">struct timeval *tv</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">95</td>
+          <td class="col-name"><code>fsync</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">96</td>
+          <td class="col-name"><code>setpriority</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int which</span>, <span class="arg">id_t who</span>, <span class="arg">int prio</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">97</td>
+          <td class="col-name"><code>socket</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int domain</span>, <span class="arg">int type</span>, <span class="arg">int protocol</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">98</td>
+          <td class="col-name"><code>connect</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">caddr_t name</span>, <span class="arg">socklen_t namelen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">100</td>
+          <td class="col-name"><code>getpriority</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int which</span>, <span class="arg">id_t who</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">104</td>
+          <td class="col-name"><code>bind</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">caddr_t name</span>, <span class="arg">socklen_t namelen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">105</td>
+          <td class="col-name"><code>setsockopt</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">int level</span>, <span class="arg">int name</span>, <span class="arg">caddr_t val</span>, <span class="arg">socklen_t valsize</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">106</td>
+          <td class="col-name"><code>listen</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">int backlog</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">111</td>
+          <td class="col-name"><code>sigsuspend</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">sigset_t mask</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">116</td>
+          <td class="col-name"><code>gettimeofday</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct timeval *tp</span>, <span class="arg">struct timezone *tzp</span>, <span class="arg">uint64_t *mach_absolute_time</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">117</td>
+          <td class="col-name"><code>getrusage</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int who</span>, <span class="arg">struct rusage *rusage</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">118</td>
+          <td class="col-name"><code>getsockopt</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">int level</span>, <span class="arg">int name</span>, <span class="arg">caddr_t val</span>, <span class="arg">socklen_t *avalsize</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">120</td>
+          <td class="col-name"><code>readv</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct iovec *iovp</span>, <span class="arg">u_int iovcnt</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">121</td>
+          <td class="col-name"><code>writev</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct iovec *iovp</span>, <span class="arg">u_int iovcnt</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">122</td>
+          <td class="col-name"><code>settimeofday</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct timeval *tv</span>, <span class="arg">struct timezone *tzp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">123</td>
+          <td class="col-name"><code>fchown</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">int uid</span>, <span class="arg">int gid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">124</td>
+          <td class="col-name"><code>fchmod</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">126</td>
+          <td class="col-name"><code>setreuid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uid_t ruid</span>, <span class="arg">uid_t euid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">127</td>
+          <td class="col-name"><code>setregid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">gid_t rgid</span>, <span class="arg">gid_t egid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">128</td>
+          <td class="col-name"><code>rename</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *from</span>, <span class="arg">char *to</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">131</td>
+          <td class="col-name"><code>sys_flock</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">int how</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">132</td>
+          <td class="col-name"><code>mkfifo</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">133</td>
+          <td class="col-name"><code>sendto</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">caddr_t buf</span>, <span class="arg">size_t len</span>, <span class="arg">int flags</span>, <span class="arg">caddr_t to</span>, <span class="arg">socklen_t tolen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">134</td>
+          <td class="col-name"><code>shutdown</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">int how</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">135</td>
+          <td class="col-name"><code>socketpair</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int domain</span>, <span class="arg">int type</span>, <span class="arg">int protocol</span>, <span class="arg">int *rsv</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">136</td>
+          <td class="col-name"><code>mkdir</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">137</td>
+          <td class="col-name"><code>rmdir</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">138</td>
+          <td class="col-name"><code>utimes</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span>, <span class="arg">struct timeval *tptr</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">139</td>
+          <td class="col-name"><code>futimes</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct timeval *tptr</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">140</td>
+          <td class="col-name"><code>adjtime</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct timeval *delta</span>, <span class="arg">struct timeval *olddelta</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">142</td>
+          <td class="col-name"><code>gethostuuid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">unsigned char *uuid_buf</span>, <span class="arg">const struct timespec *timeoutp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">147</td>
+          <td class="col-name"><code>setsid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">151</td>
+          <td class="col-name"><code>getpgid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">pid_t pid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">152</td>
+          <td class="col-name"><code>setprivexec</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int flag</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">153</td>
+          <td class="col-name"><code>pread</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t buf</span>, <span class="arg">user_size_t nbyte</span>, <span class="arg">off_t offset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">154</td>
+          <td class="col-name"><code>pwrite</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t buf</span>, <span class="arg">user_size_t nbyte</span>, <span class="arg">off_t offset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">155</td>
+          <td class="col-name"><code>nfssvc</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int flag</span>, <span class="arg">caddr_t argp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">157</td>
+          <td class="col-name"><code>statfs</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span>, <span class="arg">struct statfs *buf</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">158</td>
+          <td class="col-name"><code>fstatfs</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct statfs *buf</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">159</td>
+          <td class="col-name"><code>unmount</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">161</td>
+          <td class="col-name"><code>getfh</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *fname</span>, <span class="arg">fhandle_t *fhp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">164</td>
+          <td class="col-name"><code>funmount</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">165</td>
+          <td class="col-name"><code>quotactl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *path</span>, <span class="arg">int cmd</span>, <span class="arg">int uid</span>, <span class="arg">caddr_t arg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">167</td>
+          <td class="col-name"><code>mount</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *type</span>, <span class="arg">char *path</span>, <span class="arg">int flags</span>, <span class="arg">caddr_t data</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">169</td>
+          <td class="col-name"><code>csops</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">pid_t pid</span>, <span class="arg">uint32_t ops</span>, <span class="arg">user_addr_t useraddr</span>, <span class="arg">user_size_t usersize</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">170</td>
+          <td class="col-name"><code>csops_audittoken</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">pid_t pid</span>, <span class="arg">uint32_t ops</span>, <span class="arg">user_addr_t useraddr</span>, <span class="arg">user_size_t usersize</span>, <span class="arg">user_addr_t uaudittoken</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">173</td>
+          <td class="col-name"><code>waitid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">idtype_t idtype</span>, <span class="arg">id_t id</span>, <span class="arg">siginfo_t *infop</span>, <span class="arg">int options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">177</td>
+          <td class="col-name"><code>kdebug_typefilter</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">void** addr</span>, <span class="arg">size_t* size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">178</td>
+          <td class="col-name"><code>kdebug_trace_string</code></td>
+          <td class="col-return"><code>uint64_t</code></td>
+          <td class="col-args"><span class="arg">uint32_t debugid</span>, <span class="arg">uint64_t str_id</span>, <span class="arg">const char *str</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">179</td>
+          <td class="col-name"><code>kdebug_trace64</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t code</span>, <span class="arg">uint64_t arg1</span>, <span class="arg">uint64_t arg2</span>, <span class="arg">uint64_t arg3</span>, <span class="arg">uint64_t arg4</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">180</td>
+          <td class="col-name"><code>kdebug_trace</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t code</span>, <span class="arg">u_long arg1</span>, <span class="arg">u_long arg2</span>, <span class="arg">u_long arg3</span>, <span class="arg">u_long arg4</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">181</td>
+          <td class="col-name"><code>setgid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">gid_t gid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">182</td>
+          <td class="col-name"><code>setegid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">gid_t egid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">183</td>
+          <td class="col-name"><code>seteuid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uid_t euid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">184</td>
+          <td class="col-name"><code>sigreturn</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct ucontext *uctx</span>, <span class="arg">int infostyle</span>, <span class="arg">user_addr_t token</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">185</td>
+          <td class="col-name"><code>sys_panic_with_data</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uuid_t uuid</span>, <span class="arg">void *addr</span>, <span class="arg">uint32_t len</span>, <span class="arg">uint32_t flags</span>, <span class="arg">const char *msg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">186</td>
+          <td class="col-name"><code>thread_selfcounts</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t kind</span>, <span class="arg">user_addr_t buf</span>, <span class="arg">user_size_t size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">187</td>
+          <td class="col-name"><code>fdatasync</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">188</td>
+          <td class="col-name"><code>stat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t ub</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">189</td>
+          <td class="col-name"><code>sys_fstat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t ub</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">190</td>
+          <td class="col-name"><code>lstat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t ub</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">191</td>
+          <td class="col-name"><code>pathconf</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span>, <span class="arg">int name</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">192</td>
+          <td class="col-name"><code>sys_fpathconf</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">int name</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">194</td>
+          <td class="col-name"><code>getrlimit</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">u_int which</span>, <span class="arg">struct rlimit *rlp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">195</td>
+          <td class="col-name"><code>setrlimit</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">u_int which</span>, <span class="arg">struct rlimit *rlp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">196</td>
+          <td class="col-name"><code>getdirentries</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">char *buf</span>, <span class="arg">u_int count</span>, <span class="arg">long *basep</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">197</td>
+          <td class="col-name"><code>mmap</code></td>
+          <td class="col-return"><code>user_addr_t</code></td>
+          <td class="col-args"><span class="arg">caddr_ut addr</span>, <span class="arg">size_ut len</span>, <span class="arg">int prot</span>, <span class="arg">int flags</span>, <span class="arg">int fd</span>, <span class="arg">off_t pos</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">199</td>
+          <td class="col-name"><code>lseek</code></td>
+          <td class="col-return"><code>off_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">off_t offset</span>, <span class="arg">int whence</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">200</td>
+          <td class="col-name"><code>truncate</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span>, <span class="arg">off_t length</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">201</td>
+          <td class="col-name"><code>ftruncate</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">off_t length</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">202</td>
+          <td class="col-name"><code>sysctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int *name</span>, <span class="arg">u_int namelen</span>, <span class="arg">void *old</span>, <span class="arg">size_t *oldlenp</span>, <span class="arg">void *new</span>, <span class="arg">size_t newlen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">203</td>
+          <td class="col-name"><code>mlock</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">caddr_ut addr</span>, <span class="arg">size_ut len</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">204</td>
+          <td class="col-name"><code>munlock</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">caddr_ut addr</span>, <span class="arg">size_ut len</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">205</td>
+          <td class="col-name"><code>undelete</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">216</td>
+          <td class="col-name"><code>open_dprotected_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">int flags</span>, <span class="arg">int class</span>, <span class="arg">int dpflags</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">217</td>
+          <td class="col-name"><code>fsgetpath_ext</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t buf</span>, <span class="arg">size_t bufsize</span>, <span class="arg">user_addr_t fsid</span>, <span class="arg">uint64_t objid</span>, <span class="arg">uint32_t options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">218</td>
+          <td class="col-name"><code>openat_dprotected_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">int flags</span>, <span class="arg">int class</span>, <span class="arg">int dpflags</span>, <span class="arg">int mode</span>, <span class="arg">int authfd</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">220</td>
+          <td class="col-name"><code>getattrlist</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *path</span>, <span class="arg">struct attrlist *alist</span>, <span class="arg">void *attributeBuffer</span>, <span class="arg">size_t bufferSize</span>, <span class="arg">u_long options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">221</td>
+          <td class="col-name"><code>setattrlist</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *path</span>, <span class="arg">struct attrlist *alist</span>, <span class="arg">void *attributeBuffer</span>, <span class="arg">size_t bufferSize</span>, <span class="arg">u_long options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">222</td>
+          <td class="col-name"><code>getdirentriesattr</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct attrlist *alist</span>, <span class="arg">void *buffer</span>, <span class="arg">size_t buffersize</span>, <span class="arg">u_long *count</span>, <span class="arg">u_long *basep</span>, <span class="arg">u_long *newstate</span>, <span class="arg">u_long options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">223</td>
+          <td class="col-name"><code>exchangedata</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *path1</span>, <span class="arg">const char *path2</span>, <span class="arg">u_long options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">225</td>
+          <td class="col-name"><code>searchfs</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *path</span>, <span class="arg">struct fssearchblock *searchblock</span>, <span class="arg">uint32_t *nummatches</span>, <span class="arg">uint32_t scriptcode</span>, <span class="arg">uint32_t options</span>, <span class="arg">struct searchstate *state</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">226</td>
+          <td class="col-name"><code>delete</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">227</td>
+          <td class="col-name"><code>copyfile</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *from</span>, <span class="arg">char *to</span>, <span class="arg">int mode</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">228</td>
+          <td class="col-name"><code>fgetattrlist</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct attrlist *alist</span>, <span class="arg">void *attributeBuffer</span>, <span class="arg">size_t bufferSize</span>, <span class="arg">u_long options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">229</td>
+          <td class="col-name"><code>fsetattrlist</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct attrlist *alist</span>, <span class="arg">void *attributeBuffer</span>, <span class="arg">size_t bufferSize</span>, <span class="arg">u_long options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">230</td>
+          <td class="col-name"><code>poll</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct pollfd *fds</span>, <span class="arg">u_int nfds</span>, <span class="arg">int timeout</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">234</td>
+          <td class="col-name"><code>getxattr</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t attrname</span>, <span class="arg">user_addr_t value</span>, <span class="arg">size_t size</span>, <span class="arg">uint32_t position</span>, <span class="arg">int options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">235</td>
+          <td class="col-name"><code>fgetxattr</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t attrname</span>, <span class="arg">user_addr_t value</span>, <span class="arg">size_t size</span>, <span class="arg">uint32_t position</span>, <span class="arg">int options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">236</td>
+          <td class="col-name"><code>setxattr</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t attrname</span>, <span class="arg">user_addr_t value</span>, <span class="arg">size_t size</span>, <span class="arg">uint32_t position</span>, <span class="arg">int options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">237</td>
+          <td class="col-name"><code>fsetxattr</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t attrname</span>, <span class="arg">user_addr_t value</span>, <span class="arg">size_t size</span>, <span class="arg">uint32_t position</span>, <span class="arg">int options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">238</td>
+          <td class="col-name"><code>removexattr</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t attrname</span>, <span class="arg">int options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">239</td>
+          <td class="col-name"><code>fremovexattr</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t attrname</span>, <span class="arg">int options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">240</td>
+          <td class="col-name"><code>listxattr</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t namebuf</span>, <span class="arg">size_t bufsize</span>, <span class="arg">int options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">241</td>
+          <td class="col-name"><code>flistxattr</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t namebuf</span>, <span class="arg">size_t bufsize</span>, <span class="arg">int options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">242</td>
+          <td class="col-name"><code>fsctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *path</span>, <span class="arg">u_long cmd</span>, <span class="arg">caddr_t data</span>, <span class="arg">u_int options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">243</td>
+          <td class="col-name"><code>initgroups</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">u_int gidsetsize</span>, <span class="arg">gid_t *gidset</span>, <span class="arg">int gmuid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">244</td>
+          <td class="col-name"><code>posix_spawn</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">pid_t *pid</span>, <span class="arg">const char *path</span>, <span class="arg">const struct _posix_spawn_args_desc *adesc</span>, <span class="arg">char **argv</span>, <span class="arg">char **envp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">245</td>
+          <td class="col-name"><code>ffsctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">u_long cmd</span>, <span class="arg">caddr_t data</span>, <span class="arg">u_int options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">248</td>
+          <td class="col-name"><code>fhopen</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const struct fhandle *u_fhp</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">250</td>
+          <td class="col-name"><code>minherit</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">caddr_ut addr</span>, <span class="arg">size_ut len</span>, <span class="arg">int inherit</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">251</td>
+          <td class="col-name"><code>semsys</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">u_int which</span>, <span class="arg">int a2</span>, <span class="arg">int a3</span>, <span class="arg">int a4</span>, <span class="arg">int a5</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">252</td>
+          <td class="col-name"><code>msgsys</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">u_int which</span>, <span class="arg">int a2</span>, <span class="arg">int a3</span>, <span class="arg">int a4</span>, <span class="arg">int a5</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">253</td>
+          <td class="col-name"><code>shmsys</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">u_int which</span>, <span class="arg">int a2</span>, <span class="arg">int a3</span>, <span class="arg">int a4</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">254</td>
+          <td class="col-name"><code>semctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int semid</span>, <span class="arg">int semnum</span>, <span class="arg">int cmd</span>, <span class="arg">semun_t arg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">255</td>
+          <td class="col-name"><code>semget</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">key_t key</span>, <span class="arg">int	nsems</span>, <span class="arg">int semflg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">256</td>
+          <td class="col-name"><code>semop</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int semid</span>, <span class="arg">struct sembuf *sops</span>, <span class="arg">int nsops</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">258</td>
+          <td class="col-name"><code>msgctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int msqid</span>, <span class="arg">int cmd</span>, <span class="arg">struct	msqid_ds *buf</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">259</td>
+          <td class="col-name"><code>msgget</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">key_t key</span>, <span class="arg">int msgflg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">260</td>
+          <td class="col-name"><code>msgsnd</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int msqid</span>, <span class="arg">void *msgp</span>, <span class="arg">size_t msgsz</span>, <span class="arg">int msgflg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">261</td>
+          <td class="col-name"><code>msgrcv</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int msqid</span>, <span class="arg">void *msgp</span>, <span class="arg">size_t msgsz</span>, <span class="arg">long msgtyp</span>, <span class="arg">int msgflg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">262</td>
+          <td class="col-name"><code>shmat</code></td>
+          <td class="col-return"><code>user_addr_t</code></td>
+          <td class="col-args"><span class="arg">int shmid</span>, <span class="arg">void *shmaddr</span>, <span class="arg">int shmflg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">263</td>
+          <td class="col-name"><code>shmctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int shmid</span>, <span class="arg">int cmd</span>, <span class="arg">struct shmid_ds *buf</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">264</td>
+          <td class="col-name"><code>shmdt</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">void *shmaddr</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">265</td>
+          <td class="col-name"><code>shmget</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">key_t key</span>, <span class="arg">size_t size</span>, <span class="arg">int shmflg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">266</td>
+          <td class="col-name"><code>shm_open</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *name</span>, <span class="arg">int oflag</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">267</td>
+          <td class="col-name"><code>shm_unlink</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *name</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">268</td>
+          <td class="col-name"><code>sem_open</code></td>
+          <td class="col-return"><code>user_addr_t</code></td>
+          <td class="col-args"><span class="arg">const char *name</span>, <span class="arg">int oflag</span>, <span class="arg">int mode</span>, <span class="arg">int value</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">269</td>
+          <td class="col-name"><code>sem_close</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">sem_t *sem</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">270</td>
+          <td class="col-name"><code>sem_unlink</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *name</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">271</td>
+          <td class="col-name"><code>sem_wait</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">sem_t *sem</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">272</td>
+          <td class="col-name"><code>sem_trywait</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">sem_t *sem</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">273</td>
+          <td class="col-name"><code>sem_post</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">sem_t *sem</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">274</td>
+          <td class="col-name"><code>sys_sysctlbyname</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *name</span>, <span class="arg">size_t namelen</span>, <span class="arg">void *old</span>, <span class="arg">size_t *oldlenp</span>, <span class="arg">void *new</span>, <span class="arg">size_t newlen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">277</td>
+          <td class="col-name"><code>open_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">int flags</span>, <span class="arg">uid_t uid</span>, <span class="arg">gid_t gid</span>, <span class="arg">int mode</span>, <span class="arg">user_addr_t xsecurity</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">278</td>
+          <td class="col-name"><code>umask_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int newmask</span>, <span class="arg">user_addr_t xsecurity</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">279</td>
+          <td class="col-name"><code>stat_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t ub</span>, <span class="arg">user_addr_t xsecurity</span>, <span class="arg">user_addr_t xsecurity_size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">280</td>
+          <td class="col-name"><code>lstat_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t ub</span>, <span class="arg">user_addr_t xsecurity</span>, <span class="arg">user_addr_t xsecurity_size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">281</td>
+          <td class="col-name"><code>sys_fstat_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t ub</span>, <span class="arg">user_addr_t xsecurity</span>, <span class="arg">user_addr_t xsecurity_size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">282</td>
+          <td class="col-name"><code>chmod_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">uid_t uid</span>, <span class="arg">gid_t gid</span>, <span class="arg">int mode</span>, <span class="arg">user_addr_t xsecurity</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">283</td>
+          <td class="col-name"><code>fchmod_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">uid_t uid</span>, <span class="arg">gid_t gid</span>, <span class="arg">int mode</span>, <span class="arg">user_addr_t xsecurity</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">284</td>
+          <td class="col-name"><code>access_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t entries</span>, <span class="arg">size_t size</span>, <span class="arg">user_addr_t results</span>, <span class="arg">uid_t uid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">285</td>
+          <td class="col-name"><code>sys_settid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uid_t uid</span>, <span class="arg">gid_t gid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">286</td>
+          <td class="col-name"><code>gettid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uid_t *uidp</span>, <span class="arg">gid_t *gidp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">287</td>
+          <td class="col-name"><code>setsgroups</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int setlen</span>, <span class="arg">user_addr_t guidset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">288</td>
+          <td class="col-name"><code>getsgroups</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t setlen</span>, <span class="arg">user_addr_t guidset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">289</td>
+          <td class="col-name"><code>setwgroups</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int setlen</span>, <span class="arg">user_addr_t guidset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">290</td>
+          <td class="col-name"><code>getwgroups</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t setlen</span>, <span class="arg">user_addr_t guidset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">291</td>
+          <td class="col-name"><code>mkfifo_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">uid_t uid</span>, <span class="arg">gid_t gid</span>, <span class="arg">int mode</span>, <span class="arg">user_addr_t xsecurity</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">292</td>
+          <td class="col-name"><code>mkdir_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">uid_t uid</span>, <span class="arg">gid_t gid</span>, <span class="arg">int mode</span>, <span class="arg">user_addr_t xsecurity</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">293</td>
+          <td class="col-name"><code>identitysvc</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int opcode</span>, <span class="arg">user_addr_t message</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">294</td>
+          <td class="col-name"><code>shared_region_check_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint64_t *start_address</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">296</td>
+          <td class="col-name"><code>vm_pressure_monitor</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int wait_for_pressure</span>, <span class="arg">int nsecs_monitored</span>, <span class="arg">uint32_t *pages_reclaimed</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">297</td>
+          <td class="col-name"><code>psynch_rw_longrdlock</code></td>
+          <td class="col-return"><code>uint32_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t rwlock</span>, <span class="arg">uint32_t lgenval</span>, <span class="arg">uint32_t ugenval</span>, <span class="arg">uint32_t rw_wc</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">298</td>
+          <td class="col-name"><code>psynch_rw_yieldwrlock</code></td>
+          <td class="col-return"><code>uint32_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t rwlock</span>, <span class="arg">uint32_t lgenval</span>, <span class="arg">uint32_t ugenval</span>, <span class="arg">uint32_t rw_wc</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">299</td>
+          <td class="col-name"><code>psynch_rw_downgrade</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t rwlock</span>, <span class="arg">uint32_t lgenval</span>, <span class="arg">uint32_t ugenval</span>, <span class="arg">uint32_t rw_wc</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">300</td>
+          <td class="col-name"><code>psynch_rw_upgrade</code></td>
+          <td class="col-return"><code>uint32_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t rwlock</span>, <span class="arg">uint32_t lgenval</span>, <span class="arg">uint32_t ugenval</span>, <span class="arg">uint32_t rw_wc</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">301</td>
+          <td class="col-name"><code>psynch_mutexwait</code></td>
+          <td class="col-return"><code>uint32_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t mutex</span>, <span class="arg"> uint32_t mgen</span>, <span class="arg">uint32_t  ugen</span>, <span class="arg">uint64_t tid</span>, <span class="arg">uint32_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">302</td>
+          <td class="col-name"><code>psynch_mutexdrop</code></td>
+          <td class="col-return"><code>uint32_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t mutex</span>, <span class="arg"> uint32_t mgen</span>, <span class="arg">uint32_t  ugen</span>, <span class="arg">uint64_t tid</span>, <span class="arg">uint32_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">303</td>
+          <td class="col-name"><code>psynch_cvbroad</code></td>
+          <td class="col-return"><code>uint32_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t cv</span>, <span class="arg">uint64_t cvlsgen</span>, <span class="arg">uint64_t cvudgen</span>, <span class="arg">uint32_t flags</span>, <span class="arg">user_addr_t mutex</span>, <span class="arg"> uint64_t mugen</span>, <span class="arg">uint64_t tid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">304</td>
+          <td class="col-name"><code>psynch_cvsignal</code></td>
+          <td class="col-return"><code>uint32_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t cv</span>, <span class="arg">uint64_t cvlsgen</span>, <span class="arg">uint32_t cvugen</span>, <span class="arg">int thread_port</span>, <span class="arg">user_addr_t mutex</span>, <span class="arg"> uint64_t mugen</span>, <span class="arg">uint64_t tid</span>, <span class="arg">uint32_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">305</td>
+          <td class="col-name"><code>psynch_cvwait</code></td>
+          <td class="col-return"><code>uint32_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t cv</span>, <span class="arg">uint64_t cvlsgen</span>, <span class="arg">uint32_t cvugen</span>, <span class="arg">user_addr_t mutex</span>, <span class="arg"> uint64_t mugen</span>, <span class="arg">uint32_t flags</span>, <span class="arg">int64_t sec</span>, <span class="arg">uint32_t nsec</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">306</td>
+          <td class="col-name"><code>psynch_rw_rdlock</code></td>
+          <td class="col-return"><code>uint32_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t rwlock</span>, <span class="arg">uint32_t lgenval</span>, <span class="arg">uint32_t ugenval</span>, <span class="arg">uint32_t rw_wc</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">307</td>
+          <td class="col-name"><code>psynch_rw_wrlock</code></td>
+          <td class="col-return"><code>uint32_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t rwlock</span>, <span class="arg">uint32_t lgenval</span>, <span class="arg">uint32_t ugenval</span>, <span class="arg">uint32_t rw_wc</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">308</td>
+          <td class="col-name"><code>psynch_rw_unlock</code></td>
+          <td class="col-return"><code>uint32_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t rwlock</span>, <span class="arg">uint32_t lgenval</span>, <span class="arg">uint32_t ugenval</span>, <span class="arg">uint32_t rw_wc</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">309</td>
+          <td class="col-name"><code>psynch_rw_unlock2</code></td>
+          <td class="col-return"><code>uint32_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t rwlock</span>, <span class="arg">uint32_t lgenval</span>, <span class="arg">uint32_t ugenval</span>, <span class="arg">uint32_t rw_wc</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">310</td>
+          <td class="col-name"><code>getsid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">pid_t pid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">311</td>
+          <td class="col-name"><code>sys_settid_with_pid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">pid_t pid</span>, <span class="arg">int assume</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">312</td>
+          <td class="col-name"><code>psynch_cvclrprepost</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t cv</span>, <span class="arg">uint32_t cvgen</span>, <span class="arg">uint32_t cvugen</span>, <span class="arg">uint32_t cvsgen</span>, <span class="arg">uint32_t prepocnt</span>, <span class="arg">uint32_t preposeq</span>, <span class="arg">uint32_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">313</td>
+          <td class="col-name"><code>aio_fsync</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int op</span>, <span class="arg">user_addr_t aiocbp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">314</td>
+          <td class="col-name"><code>aio_return</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t aiocbp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">315</td>
+          <td class="col-name"><code>aio_suspend</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t aiocblist</span>, <span class="arg">int nent</span>, <span class="arg">user_addr_t timeoutp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">316</td>
+          <td class="col-name"><code>aio_cancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t aiocbp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">317</td>
+          <td class="col-name"><code>aio_error</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t aiocbp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">318</td>
+          <td class="col-name"><code>aio_read</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t aiocbp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">319</td>
+          <td class="col-name"><code>aio_write</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t aiocbp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">320</td>
+          <td class="col-name"><code>lio_listio</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int mode</span>, <span class="arg">user_addr_t aiocblist</span>, <span class="arg">int nent</span>, <span class="arg">user_addr_t sigp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">322</td>
+          <td class="col-name"><code>iopolicysys</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int cmd</span>, <span class="arg">void *arg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">323</td>
+          <td class="col-name"><code>process_policy</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int scope</span>, <span class="arg">int action</span>, <span class="arg">int policy</span>, <span class="arg">int policy_subtype</span>, <span class="arg">user_addr_t attrp</span>, <span class="arg">pid_t target_pid</span>, <span class="arg">uint64_t target_threadid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">324</td>
+          <td class="col-name"><code>mlockall</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int how</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">325</td>
+          <td class="col-name"><code>munlockall</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int how</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">327</td>
+          <td class="col-name"><code>issetugid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">328</td>
+          <td class="col-name"><code>__pthread_kill</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int thread_port</span>, <span class="arg">int sig</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">329</td>
+          <td class="col-name"><code>__pthread_sigmask</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int how</span>, <span class="arg">user_addr_t set</span>, <span class="arg">user_addr_t oset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">330</td>
+          <td class="col-name"><code>__sigwait</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t set</span>, <span class="arg">user_addr_t sig</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">331</td>
+          <td class="col-name"><code>__disable_threadsignal</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int value</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">332</td>
+          <td class="col-name"><code>__pthread_markcancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int thread_port</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">333</td>
+          <td class="col-name"><code>__pthread_canceled</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int  action</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">334</td>
+          <td class="col-name"><code>__semwait_signal</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int cond_sem</span>, <span class="arg">int mutex_sem</span>, <span class="arg">int timeout</span>, <span class="arg">int relative</span>, <span class="arg">int64_t tv_sec</span>, <span class="arg">int32_t tv_nsec</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">336</td>
+          <td class="col-name"><code>proc_info</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int32_t callnum,int32_t pid,uint32_t flavor</span>, <span class="arg">uint64_t arg,user_addr_t buffer,int32_t buffersize</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">337</td>
+          <td class="col-name"><code>sendfile</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">int s</span>, <span class="arg">off_t offset</span>, <span class="arg">off_t *nbytes</span>, <span class="arg">struct sf_hdtr *hdtr</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">338</td>
+          <td class="col-name"><code>stat64</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t ub</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">339</td>
+          <td class="col-name"><code>sys_fstat64</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t ub</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">340</td>
+          <td class="col-name"><code>lstat64</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t ub</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">341</td>
+          <td class="col-name"><code>stat64_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t ub</span>, <span class="arg">user_addr_t xsecurity</span>, <span class="arg">user_addr_t xsecurity_size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">342</td>
+          <td class="col-name"><code>lstat64_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t ub</span>, <span class="arg">user_addr_t xsecurity</span>, <span class="arg">user_addr_t xsecurity_size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">343</td>
+          <td class="col-name"><code>sys_fstat64_extended</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t ub</span>, <span class="arg">user_addr_t xsecurity</span>, <span class="arg">user_addr_t xsecurity_size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">344</td>
+          <td class="col-name"><code>getdirentries64</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">void *buf</span>, <span class="arg">user_size_t bufsize</span>, <span class="arg">off_t *position</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">345</td>
+          <td class="col-name"><code>statfs64</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span>, <span class="arg">struct statfs64 *buf</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">346</td>
+          <td class="col-name"><code>fstatfs64</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct statfs64 *buf</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">347</td>
+          <td class="col-name"><code>getfsstat64</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t buf</span>, <span class="arg">int bufsize</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">348</td>
+          <td class="col-name"><code>__pthread_chdir</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">349</td>
+          <td class="col-name"><code>__pthread_fchdir</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">350</td>
+          <td class="col-name"><code>audit</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">void *record</span>, <span class="arg">int length</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">351</td>
+          <td class="col-name"><code>auditon</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int cmd</span>, <span class="arg">void *data</span>, <span class="arg">int length</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">353</td>
+          <td class="col-name"><code>getauid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">au_id_t *auid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">354</td>
+          <td class="col-name"><code>setauid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">au_id_t *auid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">357</td>
+          <td class="col-name"><code>getaudit_addr</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct auditinfo_addr *auditinfo_addr</span>, <span class="arg">int length</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">358</td>
+          <td class="col-name"><code>setaudit_addr</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct auditinfo_addr *auditinfo_addr</span>, <span class="arg">int length</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">359</td>
+          <td class="col-name"><code>auditctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">360</td>
+          <td class="col-name"><code>bsdthread_create</code></td>
+          <td class="col-return"><code>user_addr_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t func</span>, <span class="arg">user_addr_t func_arg</span>, <span class="arg">user_addr_t stack</span>, <span class="arg">user_addr_t pthread</span>, <span class="arg">uint32_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">361</td>
+          <td class="col-name"><code>bsdthread_terminate</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t stackaddr</span>, <span class="arg">size_t freesize</span>, <span class="arg">uint32_t port</span>, <span class="arg">user_addr_t sema_or_ulock</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">362</td>
+          <td class="col-name"><code>kqueue</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">363</td>
+          <td class="col-name"><code>kevent</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">const struct kevent *changelist</span>, <span class="arg">int nchanges</span>, <span class="arg">struct kevent *eventlist</span>, <span class="arg">int nevents</span>, <span class="arg">const struct timespec *timeout</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">364</td>
+          <td class="col-name"><code>lchown</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">uid_t owner</span>, <span class="arg">gid_t group</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">366</td>
+          <td class="col-name"><code>bsdthread_register</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t threadstart</span>, <span class="arg">user_addr_t wqthread</span>, <span class="arg">uint32_t flags</span>, <span class="arg">user_addr_t stack_addr_hint</span>, <span class="arg">user_addr_t targetconc_ptr</span>, <span class="arg">uint32_t dispatchqueue_offset</span>, <span class="arg">uint32_t tsd_offset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">367</td>
+          <td class="col-name"><code>workq_open</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">368</td>
+          <td class="col-name"><code>workq_kernreturn</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int options</span>, <span class="arg">user_addr_t item</span>, <span class="arg">int affinity</span>, <span class="arg">int prio</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">369</td>
+          <td class="col-name"><code>kevent64</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">const struct kevent64_s *changelist</span>, <span class="arg">int nchanges</span>, <span class="arg">struct kevent64_s *eventlist</span>, <span class="arg">int nevents</span>, <span class="arg">unsigned int flags</span>, <span class="arg">const struct timespec *timeout</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">373</td>
+          <td class="col-name"><code>ledger</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int cmd</span>, <span class="arg">caddr_t arg1</span>, <span class="arg">caddr_t arg2</span>, <span class="arg">caddr_t arg3</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">374</td>
+          <td class="col-name"><code>kevent_qos</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">const struct kevent_qos_s *changelist</span>, <span class="arg">int nchanges</span>, <span class="arg">struct kevent_qos_s *eventlist</span>, <span class="arg">int nevents</span>, <span class="arg">void *data_out</span>, <span class="arg">size_t *data_available</span>, <span class="arg">unsigned int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">375</td>
+          <td class="col-name"><code>kevent_id</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint64_t id</span>, <span class="arg">const struct kevent_qos_s *changelist</span>, <span class="arg">int nchanges</span>, <span class="arg">struct kevent_qos_s *eventlist</span>, <span class="arg">int nevents</span>, <span class="arg">void *data_out</span>, <span class="arg">size_t *data_available</span>, <span class="arg">unsigned int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">380</td>
+          <td class="col-name"><code>__mac_execve</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *fname</span>, <span class="arg">char **argp</span>, <span class="arg">char **envp</span>, <span class="arg">struct mac *mac_p</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">381</td>
+          <td class="col-name"><code>__mac_syscall</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *policy</span>, <span class="arg">int call</span>, <span class="arg">user_addr_t arg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">382</td>
+          <td class="col-name"><code>__mac_get_file</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path_p</span>, <span class="arg">struct mac *mac_p</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">383</td>
+          <td class="col-name"><code>__mac_set_file</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path_p</span>, <span class="arg">struct mac *mac_p</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">384</td>
+          <td class="col-name"><code>__mac_get_link</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path_p</span>, <span class="arg">struct mac *mac_p</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">385</td>
+          <td class="col-name"><code>__mac_set_link</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path_p</span>, <span class="arg">struct mac *mac_p</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">386</td>
+          <td class="col-name"><code>__mac_get_proc</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct mac *mac_p</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">387</td>
+          <td class="col-name"><code>__mac_set_proc</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct mac *mac_p</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">388</td>
+          <td class="col-name"><code>__mac_get_fd</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct mac *mac_p</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">389</td>
+          <td class="col-name"><code>__mac_set_fd</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct mac *mac_p</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">390</td>
+          <td class="col-name"><code>__mac_get_pid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">pid_t pid</span>, <span class="arg">struct mac *mac_p</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">394</td>
+          <td class="col-name"><code>pselect</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int nd</span>, <span class="arg">u_int32_t *in</span>, <span class="arg">u_int32_t *ou</span>, <span class="arg">u_int32_t *ex</span>, <span class="arg">const struct timespec *ts</span>, <span class="arg">const struct sigset_t *mask</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">395</td>
+          <td class="col-name"><code>pselect_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int nd</span>, <span class="arg">u_int32_t *in</span>, <span class="arg">u_int32_t *ou</span>, <span class="arg">u_int32_t *ex</span>, <span class="arg">const struct timespec *ts</span>, <span class="arg">const struct sigset_t *mask</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">396</td>
+          <td class="col-name"><code>read_nocancel</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t cbuf</span>, <span class="arg">user_size_t nbyte</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">397</td>
+          <td class="col-name"><code>write_nocancel</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t cbuf</span>, <span class="arg">user_size_t nbyte</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">398</td>
+          <td class="col-name"><code>open_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">int flags</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">399</td>
+          <td class="col-name"><code>sys_close_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">400</td>
+          <td class="col-name"><code>wait4_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int pid</span>, <span class="arg">user_addr_t status</span>, <span class="arg">int options</span>, <span class="arg">user_addr_t rusage</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">401</td>
+          <td class="col-name"><code>recvmsg_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">struct msghdr *msg</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">402</td>
+          <td class="col-name"><code>sendmsg_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">caddr_t msg</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">403</td>
+          <td class="col-name"><code>recvfrom_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">void *buf</span>, <span class="arg">size_t len</span>, <span class="arg">int flags</span>, <span class="arg">struct sockaddr *from</span>, <span class="arg">int *fromlenaddr</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">404</td>
+          <td class="col-name"><code>accept_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">caddr_t name</span>, <span class="arg">socklen_t	*anamelen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">405</td>
+          <td class="col-name"><code>msync_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">caddr_ut addr</span>, <span class="arg">size_ut len</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">406</td>
+          <td class="col-name"><code>sys_fcntl_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">int cmd</span>, <span class="arg">long arg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">407</td>
+          <td class="col-name"><code>select_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int nd</span>, <span class="arg">u_int32_t *in</span>, <span class="arg">u_int32_t *ou</span>, <span class="arg">u_int32_t *ex</span>, <span class="arg">struct timeval *tv</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">408</td>
+          <td class="col-name"><code>fsync_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">409</td>
+          <td class="col-name"><code>connect_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">caddr_t name</span>, <span class="arg">socklen_t namelen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">410</td>
+          <td class="col-name"><code>sigsuspend_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">sigset_t mask</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">411</td>
+          <td class="col-name"><code>readv_nocancel</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct iovec *iovp</span>, <span class="arg">u_int iovcnt</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">412</td>
+          <td class="col-name"><code>writev_nocancel</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct iovec *iovp</span>, <span class="arg">u_int iovcnt</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">413</td>
+          <td class="col-name"><code>sendto_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">caddr_t buf</span>, <span class="arg">size_t len</span>, <span class="arg">int flags</span>, <span class="arg">caddr_t to</span>, <span class="arg">socklen_t tolen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">414</td>
+          <td class="col-name"><code>pread_nocancel</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t buf</span>, <span class="arg">user_size_t nbyte</span>, <span class="arg">off_t offset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">415</td>
+          <td class="col-name"><code>pwrite_nocancel</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t buf</span>, <span class="arg">user_size_t nbyte</span>, <span class="arg">off_t offset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">416</td>
+          <td class="col-name"><code>waitid_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">idtype_t idtype</span>, <span class="arg">id_t id</span>, <span class="arg">siginfo_t *infop</span>, <span class="arg">int options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">417</td>
+          <td class="col-name"><code>poll_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct pollfd *fds</span>, <span class="arg">u_int nfds</span>, <span class="arg">int timeout</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">418</td>
+          <td class="col-name"><code>msgsnd_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int msqid</span>, <span class="arg">void *msgp</span>, <span class="arg">size_t msgsz</span>, <span class="arg">int msgflg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">419</td>
+          <td class="col-name"><code>msgrcv_nocancel</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int msqid</span>, <span class="arg">void *msgp</span>, <span class="arg">size_t msgsz</span>, <span class="arg">long msgtyp</span>, <span class="arg">int msgflg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">420</td>
+          <td class="col-name"><code>sem_wait_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">sem_t *sem</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">421</td>
+          <td class="col-name"><code>aio_suspend_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t aiocblist</span>, <span class="arg">int nent</span>, <span class="arg">user_addr_t timeoutp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">422</td>
+          <td class="col-name"><code>__sigwait_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t set</span>, <span class="arg">user_addr_t sig</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">423</td>
+          <td class="col-name"><code>__semwait_signal_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int cond_sem</span>, <span class="arg">int mutex_sem</span>, <span class="arg">int timeout</span>, <span class="arg">int relative</span>, <span class="arg">int64_t tv_sec</span>, <span class="arg">int32_t tv_nsec</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">424</td>
+          <td class="col-name"><code>__mac_mount</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *type</span>, <span class="arg">char *path</span>, <span class="arg">int flags</span>, <span class="arg">caddr_t data</span>, <span class="arg">struct mac *mac_p</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">425</td>
+          <td class="col-name"><code>__mac_get_mount</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">char *path</span>, <span class="arg">struct mac *mac_p</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">426</td>
+          <td class="col-name"><code>__mac_getfsstat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t buf</span>, <span class="arg">int bufsize</span>, <span class="arg">user_addr_t mac</span>, <span class="arg">int macsize</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">427</td>
+          <td class="col-name"><code>fsgetpath</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">user_addr_t buf</span>, <span class="arg">size_t bufsize</span>, <span class="arg">user_addr_t fsid</span>, <span class="arg">uint64_t objid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">428</td>
+          <td class="col-name"><code>audit_session_self</code></td>
+          <td class="col-return"><code>mach_port_name_t</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">429</td>
+          <td class="col-name"><code>audit_session_join</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">mach_port_name_t port</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">430</td>
+          <td class="col-name"><code>sys_fileport_makeport</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t portnamep</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">431</td>
+          <td class="col-name"><code>sys_fileport_makefd</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">mach_port_name_t port</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">432</td>
+          <td class="col-name"><code>audit_session_port</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">au_asid_t asid</span>, <span class="arg">user_addr_t portnamep</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">433</td>
+          <td class="col-name"><code>pid_suspend</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int pid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">434</td>
+          <td class="col-name"><code>pid_resume</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int pid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">435</td>
+          <td class="col-name"><code>pid_hibernate</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int pid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">436</td>
+          <td class="col-name"><code>pid_shutdown_sockets</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int pid</span>, <span class="arg">int level</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">439</td>
+          <td class="col-name"><code>kas_info</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int selector</span>, <span class="arg">void *value</span>, <span class="arg">size_t *size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">440</td>
+          <td class="col-name"><code>memorystatus_control</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t command</span>, <span class="arg">int32_t pid</span>, <span class="arg">uint32_t flags</span>, <span class="arg">user_addr_t buffer</span>, <span class="arg">size_t buffersize</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">441</td>
+          <td class="col-name"><code>guarded_open_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">const guardid_t *guard</span>, <span class="arg">u_int guardflags</span>, <span class="arg">int flags</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">442</td>
+          <td class="col-name"><code>guarded_close_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">const guardid_t *guard</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">443</td>
+          <td class="col-name"><code>guarded_kqueue_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const guardid_t *guard</span>, <span class="arg">u_int guardflags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">444</td>
+          <td class="col-name"><code>change_fdguard_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">const guardid_t *guard</span>, <span class="arg">u_int guardflags</span>, <span class="arg">const guardid_t *nguard</span>, <span class="arg">u_int nguardflags</span>, <span class="arg">int *fdflagsp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">445</td>
+          <td class="col-name"><code>usrctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">446</td>
+          <td class="col-name"><code>proc_rlimit_control</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">pid_t pid</span>, <span class="arg">int flavor</span>, <span class="arg">void *arg</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">447</td>
+          <td class="col-name"><code>connectx</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int socket</span>, <span class="arg">const sa_endpoints_t *endpoints</span>, <span class="arg">sae_associd_t associd</span>, <span class="arg">unsigned int flags</span>, <span class="arg">const struct iovec *iov</span>, <span class="arg">unsigned int iovcnt</span>, <span class="arg">size_t *len</span>, <span class="arg">sae_connid_t *connid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">448</td>
+          <td class="col-name"><code>disconnectx</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">sae_associd_t aid</span>, <span class="arg">sae_connid_t cid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">449</td>
+          <td class="col-name"><code>peeloff</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">sae_associd_t aid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">450</td>
+          <td class="col-name"><code>socket_delegate</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int domain</span>, <span class="arg">int type</span>, <span class="arg">int protocol</span>, <span class="arg">pid_t epid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">451</td>
+          <td class="col-name"><code>telemetry</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint64_t cmd</span>, <span class="arg">uint64_t deadline</span>, <span class="arg">uint64_t interval</span>, <span class="arg">uint64_t leeway</span>, <span class="arg">uint64_t arg4</span>, <span class="arg">uint64_t arg5</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">452</td>
+          <td class="col-name"><code>proc_uuid_policy</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t operation</span>, <span class="arg">uuid_t uuid</span>, <span class="arg">size_t uuidlen</span>, <span class="arg">uint32_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">453</td>
+          <td class="col-name"><code>memorystatus_get_level</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t level</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">454</td>
+          <td class="col-name"><code>system_override</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint64_t timeout</span>, <span class="arg">uint64_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">455</td>
+          <td class="col-name"><code>vfs_purge</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">456</td>
+          <td class="col-name"><code>sfi_ctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t operation</span>, <span class="arg">uint32_t sfi_class</span>, <span class="arg">uint64_t time</span>, <span class="arg">uint64_t *out_time</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">457</td>
+          <td class="col-name"><code>sfi_pidctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t operation</span>, <span class="arg">pid_t pid</span>, <span class="arg">uint32_t sfi_flags</span>, <span class="arg">uint32_t *out_sfi_flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">458</td>
+          <td class="col-name"><code>coalition</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t operation</span>, <span class="arg">uint64_t *cid</span>, <span class="arg">uint32_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">459</td>
+          <td class="col-name"><code>coalition_info</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t flavor</span>, <span class="arg">uint64_t *cid</span>, <span class="arg">void *buffer</span>, <span class="arg">size_t *bufsize</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">460</td>
+          <td class="col-name"><code>necp_match_policy</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint8_t *parameters</span>, <span class="arg">size_t parameters_size</span>, <span class="arg">struct necp_aggregate_result *returned_result</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">461</td>
+          <td class="col-name"><code>getattrlistbulk</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int dirfd</span>, <span class="arg">struct attrlist *alist</span>, <span class="arg">void *attributeBuffer</span>, <span class="arg">size_t bufferSize</span>, <span class="arg">uint64_t options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">462</td>
+          <td class="col-name"><code>clonefileat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int src_dirfd</span>, <span class="arg">user_addr_t src</span>, <span class="arg">int dst_dirfd</span>, <span class="arg">user_addr_t dst</span>, <span class="arg">uint32_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">463</td>
+          <td class="col-name"><code>openat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">int flags</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">464</td>
+          <td class="col-name"><code>openat_nocancel</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">int flags</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">465</td>
+          <td class="col-name"><code>renameat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fromfd</span>, <span class="arg">char *from</span>, <span class="arg">int tofd</span>, <span class="arg">char *to</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">466</td>
+          <td class="col-name"><code>faccessat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">int amode</span>, <span class="arg">int flag</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">467</td>
+          <td class="col-name"><code>fchmodat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">int mode</span>, <span class="arg">int flag</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">468</td>
+          <td class="col-name"><code>fchownat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">uid_t uid,gid_t gid</span>, <span class="arg">int flag</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">469</td>
+          <td class="col-name"><code>fstatat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t ub</span>, <span class="arg">int flag</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">470</td>
+          <td class="col-name"><code>fstatat64</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t ub</span>, <span class="arg">int flag</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">471</td>
+          <td class="col-name"><code>linkat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd1</span>, <span class="arg">user_addr_t path</span>, <span class="arg">int fd2</span>, <span class="arg">user_addr_t link</span>, <span class="arg">int flag</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">472</td>
+          <td class="col-name"><code>unlinkat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">int flag</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">473</td>
+          <td class="col-name"><code>readlinkat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">user_addr_t buf</span>, <span class="arg">size_t bufsize</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">474</td>
+          <td class="col-name"><code>symlinkat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t *path1</span>, <span class="arg">int fd</span>, <span class="arg">user_addr_t path2</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">475</td>
+          <td class="col-name"><code>mkdirat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">476</td>
+          <td class="col-name"><code>getattrlistat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">const char *path</span>, <span class="arg">struct attrlist *alist</span>, <span class="arg">void *attributeBuffer</span>, <span class="arg">size_t bufferSize</span>, <span class="arg">u_long options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">477</td>
+          <td class="col-name"><code>proc_trace_log</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">pid_t pid</span>, <span class="arg">uint64_t uniqueid</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">478</td>
+          <td class="col-name"><code>bsdthread_ctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t cmd</span>, <span class="arg">user_addr_t arg1</span>, <span class="arg">user_addr_t arg2</span>, <span class="arg">user_addr_t arg3</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">479</td>
+          <td class="col-name"><code>openbyid_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t fsid</span>, <span class="arg">user_addr_t objid</span>, <span class="arg">int oflags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">480</td>
+          <td class="col-name"><code>recvmsg_x</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">struct msghdr_x *msgp</span>, <span class="arg">u_int cnt</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">481</td>
+          <td class="col-name"><code>sendmsg_x</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int s</span>, <span class="arg">struct msghdr_x *msgp</span>, <span class="arg">u_int cnt</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">482</td>
+          <td class="col-name"><code>thread_selfusage</code></td>
+          <td class="col-return"><code>uint64_t</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">483</td>
+          <td class="col-name"><code>csrctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t op</span>, <span class="arg">user_addr_t useraddr</span>, <span class="arg">user_addr_t usersize</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">484</td>
+          <td class="col-name"><code>guarded_open_dprotected_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t path</span>, <span class="arg">const guardid_t *guard</span>, <span class="arg">u_int guardflags</span>, <span class="arg">int flags</span>, <span class="arg">int dpclass</span>, <span class="arg">int dpflags</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">485</td>
+          <td class="col-name"><code>guarded_write_np</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">const guardid_t *guard</span>, <span class="arg">user_addr_t cbuf</span>, <span class="arg">user_size_t nbyte</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">486</td>
+          <td class="col-name"><code>guarded_pwrite_np</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">const guardid_t *guard</span>, <span class="arg">user_addr_t buf</span>, <span class="arg">user_size_t nbyte</span>, <span class="arg">off_t offset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">487</td>
+          <td class="col-name"><code>guarded_writev_np</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">const guardid_t *guard</span>, <span class="arg">struct iovec *iovp</span>, <span class="arg">int iovcnt</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">488</td>
+          <td class="col-name"><code>renameatx_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fromfd</span>, <span class="arg">char *from</span>, <span class="arg">int tofd</span>, <span class="arg">char *to</span>, <span class="arg">u_int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">489</td>
+          <td class="col-name"><code>mremap_encrypted</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">caddr_ut addr</span>, <span class="arg">size_ut len</span>, <span class="arg">uint32_t cryptid</span>, <span class="arg">uint32_t cputype</span>, <span class="arg">uint32_t cpusubtype</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">490</td>
+          <td class="col-name"><code>netagent_trigger</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uuid_t agent_uuid</span>, <span class="arg">size_t agent_uuidlen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">491</td>
+          <td class="col-name"><code>stack_snapshot_with_config</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int stackshot_config_version</span>, <span class="arg">user_addr_t stackshot_config</span>, <span class="arg">size_t stackshot_config_size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">492</td>
+          <td class="col-name"><code>microstackshot</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t tracebuf</span>, <span class="arg">uint32_t tracebuf_size</span>, <span class="arg">uint32_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">494</td>
+          <td class="col-name"><code>persona</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t operation</span>, <span class="arg">uint32_t flags</span>, <span class="arg">struct kpersona_info *info</span>, <span class="arg">uid_t *id</span>, <span class="arg">size_t *idlen</span>, <span class="arg">char *path</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">496</td>
+          <td class="col-name"><code>mach_eventlink_signal</code></td>
+          <td class="col-return"><code>uint64_t</code></td>
+          <td class="col-args"><span class="arg">mach_port_name_t eventlink_port</span>, <span class="arg">uint64_t signal_count</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">497</td>
+          <td class="col-name"><code>mach_eventlink_wait_until</code></td>
+          <td class="col-return"><code>uint64_t</code></td>
+          <td class="col-args"><span class="arg">mach_port_name_t eventlink_port</span>, <span class="arg">uint64_t wait_count</span>, <span class="arg">uint64_t deadline</span>, <span class="arg">uint32_t clock_id</span>, <span class="arg">uint32_t option</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">498</td>
+          <td class="col-name"><code>mach_eventlink_signal_wait_until</code></td>
+          <td class="col-return"><code>uint64_t</code></td>
+          <td class="col-args"><span class="arg">mach_port_name_t eventlink_port</span>, <span class="arg">uint64_t wait_count</span>, <span class="arg">uint64_t signal_count</span>, <span class="arg">uint64_t deadline</span>, <span class="arg">uint32_t clock_id</span>, <span class="arg">uint32_t option</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">499</td>
+          <td class="col-name"><code>work_interval_ctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t operation</span>, <span class="arg">uint64_t work_interval_id</span>, <span class="arg">void *arg</span>, <span class="arg">size_t len</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">500</td>
+          <td class="col-name"><code>getentropy</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">void *buffer</span>, <span class="arg">size_t size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">501</td>
+          <td class="col-name"><code>necp_open</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">502</td>
+          <td class="col-name"><code>necp_client_action</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int necp_fd</span>, <span class="arg">uint32_t action</span>, <span class="arg">uuid_t client_id</span>, <span class="arg">size_t client_id_len</span>, <span class="arg">uint8_t *buffer</span>, <span class="arg">size_t buffer_size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">503</td>
+          <td class="col-name"><code>__nexus_open</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct nxctl_init *init</span>, <span class="arg">uint32_t init_len</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">504</td>
+          <td class="col-name"><code>__nexus_register</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int ctl</span>, <span class="arg">struct nxprov_reg *reg</span>, <span class="arg">uint32_t reg_len</span>, <span class="arg">uuid_t *prov_uuid</span>, <span class="arg">uint32_t prov_uuid_len</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">505</td>
+          <td class="col-name"><code>__nexus_deregister</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int ctl</span>, <span class="arg">uuid_t prov_uuid</span>, <span class="arg">uint32_t prov_uuid_len</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">506</td>
+          <td class="col-name"><code>__nexus_create</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int ctl</span>, <span class="arg">uuid_t prov_uuid</span>, <span class="arg">uint32_t prov_uuid_len</span>, <span class="arg">uuid_t *nx_uuid</span>, <span class="arg">uint32_t nx_uuid_len</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">507</td>
+          <td class="col-name"><code>__nexus_destroy</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int ctl</span>, <span class="arg">uuid_t nx_uuid</span>, <span class="arg">uint32_t nx_uuid_len</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">508</td>
+          <td class="col-name"><code>__nexus_get_opt</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int ctl</span>, <span class="arg">uint32_t opt</span>, <span class="arg">void *aoptval</span>, <span class="arg">uint32_t *aoptlen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">509</td>
+          <td class="col-name"><code>__nexus_set_opt</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int ctl</span>, <span class="arg">uint32_t opt</span>, <span class="arg">const void *aoptval</span>, <span class="arg">uint32_t optlen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">510</td>
+          <td class="col-name"><code>__channel_open</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct ch_init *init</span>, <span class="arg">uint32_t init_len</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">511</td>
+          <td class="col-name"><code>__channel_get_info</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int c</span>, <span class="arg">struct ch_info *cinfo</span>, <span class="arg">uint32_t cinfolen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">512</td>
+          <td class="col-name"><code>__channel_sync</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int c</span>, <span class="arg">int mode</span>, <span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">513</td>
+          <td class="col-name"><code>__channel_get_opt</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int c</span>, <span class="arg">uint32_t opt</span>, <span class="arg">void *aoptval</span>, <span class="arg">uint32_t *aoptlen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">514</td>
+          <td class="col-name"><code>__channel_set_opt</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int c</span>, <span class="arg">uint32_t opt</span>, <span class="arg">const void *aoptval</span>, <span class="arg">uint32_t optlen</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">515</td>
+          <td class="col-name"><code>sys_ulock_wait</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t operation</span>, <span class="arg">void *addr</span>, <span class="arg">uint64_t value</span>, <span class="arg">uint32_t timeout</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">516</td>
+          <td class="col-name"><code>sys_ulock_wake</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t operation</span>, <span class="arg">void *addr</span>, <span class="arg">uint64_t wake_value</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">517</td>
+          <td class="col-name"><code>fclonefileat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int src_fd</span>, <span class="arg">int dst_dirfd</span>, <span class="arg">user_addr_t dst</span>, <span class="arg">uint32_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">518</td>
+          <td class="col-name"><code>fs_snapshot</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t op</span>, <span class="arg">int dirfd</span>, <span class="arg">user_addr_t name1</span>, <span class="arg">user_addr_t name2</span>, <span class="arg">user_addr_t data</span>, <span class="arg">uint32_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">520</td>
+          <td class="col-name"><code>terminate_with_payload</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int pid</span>, <span class="arg">uint32_t reason_namespace</span>, <span class="arg">uint64_t reason_code</span>, <span class="arg">void *payload</span>, <span class="arg">uint32_t payload_size</span>, <span class="arg">const char *reason_string</span>, <span class="arg">uint64_t reason_flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">521</td>
+          <td class="col-name"><code>abort_with_payload</code></td>
+          <td class="col-return"><code>void</code></td>
+          <td class="col-args"><span class="arg">uint32_t reason_namespace</span>, <span class="arg">uint64_t reason_code</span>, <span class="arg">void *payload</span>, <span class="arg">uint32_t payload_size</span>, <span class="arg">const char *reason_string</span>, <span class="arg">uint64_t reason_flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">522</td>
+          <td class="col-name"><code>necp_session_open</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">523</td>
+          <td class="col-name"><code>necp_session_action</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int necp_fd</span>, <span class="arg">uint32_t action</span>, <span class="arg">uint8_t *in_buffer</span>, <span class="arg">size_t in_buffer_length</span>, <span class="arg">uint8_t *out_buffer</span>, <span class="arg">size_t out_buffer_length</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">524</td>
+          <td class="col-name"><code>setattrlistat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">const char *path</span>, <span class="arg">struct attrlist *alist</span>, <span class="arg">void *attributeBuffer</span>, <span class="arg">size_t bufferSize</span>, <span class="arg">uint32_t options</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">525</td>
+          <td class="col-name"><code>net_qos_guideline</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct net_qos_param *param</span>, <span class="arg">uint32_t param_len</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">526</td>
+          <td class="col-name"><code>fmount</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *type</span>, <span class="arg">int fd</span>, <span class="arg">int flags</span>, <span class="arg">void *data</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">527</td>
+          <td class="col-name"><code>ntp_adjtime</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct timex *tp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">528</td>
+          <td class="col-name"><code>ntp_gettime</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">struct ntptimeval *ntvp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">529</td>
+          <td class="col-name"><code>os_fault_with_payload</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t reason_namespace</span>, <span class="arg">uint64_t reason_code</span>, <span class="arg">void *payload</span>, <span class="arg">uint32_t payload_size</span>, <span class="arg">const char *reason_string</span>, <span class="arg">uint64_t reason_flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">530</td>
+          <td class="col-name"><code>kqueue_workloop_ctl</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">user_addr_t cmd</span>, <span class="arg">uint64_t options</span>, <span class="arg">user_addr_t addr</span>, <span class="arg">size_t sz</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">531</td>
+          <td class="col-name"><code>__mach_bridge_remote_time</code></td>
+          <td class="col-return"><code>uint64_t</code></td>
+          <td class="col-args"><span class="arg">uint64_t local_timestamp</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">532</td>
+          <td class="col-name"><code>coalition_ledger</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t operation</span>, <span class="arg">uint64_t *cid</span>, <span class="arg">void *buffer</span>, <span class="arg">size_t *bufsize</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">533</td>
+          <td class="col-name"><code>log_data</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">unsigned int tag</span>, <span class="arg">unsigned int flags</span>, <span class="arg">void *buffer</span>, <span class="arg">unsigned int size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">534</td>
+          <td class="col-name"><code>memorystatus_available_memory</code></td>
+          <td class="col-return"><code>uint64_t</code></td>
+          <td class="col-args"><span class="arg-void">void</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">535</td>
+          <td class="col-name"><code>objc_bp_assist_cfg_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint64_t adr</span>, <span class="arg">uint64_t ctl</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">536</td>
+          <td class="col-name"><code>shared_region_map_and_slide_2_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t files_count</span>, <span class="arg">const struct shared_file_np *files</span>, <span class="arg">uint32_t mappings_count</span>, <span class="arg">const shared_file_mapping_slide_np_ut *mappings_u</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">537</td>
+          <td class="col-name"><code>pivot_root</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *new_rootfs_path_before</span>, <span class="arg">const char *old_rootfs_path_after</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">538</td>
+          <td class="col-name"><code>task_inspect_for_pid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">mach_port_name_t target_tport</span>, <span class="arg">int pid</span>, <span class="arg">mach_port_name_t *t</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">539</td>
+          <td class="col-name"><code>task_read_for_pid</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">mach_port_name_t target_tport</span>, <span class="arg">int pid</span>, <span class="arg">mach_port_name_t *t</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">540</td>
+          <td class="col-name"><code>sys_preadv</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct iovec *iovp</span>, <span class="arg">int iovcnt</span>, <span class="arg">off_t offset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">541</td>
+          <td class="col-name"><code>sys_pwritev</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct iovec *iovp</span>, <span class="arg">int iovcnt</span>, <span class="arg">off_t offset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">542</td>
+          <td class="col-name"><code>sys_preadv_nocancel</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct iovec *iovp</span>, <span class="arg">int iovcnt</span>, <span class="arg">off_t offset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">543</td>
+          <td class="col-name"><code>sys_pwritev_nocancel</code></td>
+          <td class="col-return"><code>user_ssize_t</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">struct iovec *iovp</span>, <span class="arg">int iovcnt</span>, <span class="arg">off_t offset</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">544</td>
+          <td class="col-name"><code>sys_ulock_wait2</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t operation</span>, <span class="arg">void *addr</span>, <span class="arg">uint64_t value</span>, <span class="arg">uint64_t timeout</span>, <span class="arg">uint64_t value2</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">545</td>
+          <td class="col-name"><code>proc_info_extended_id</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int32_t callnum</span>, <span class="arg">int32_t pid</span>, <span class="arg">uint32_t flavor</span>, <span class="arg">uint32_t flags</span>, <span class="arg">uint64_t ext_id</span>, <span class="arg">uint64_t arg</span>, <span class="arg">user_addr_t buffer</span>, <span class="arg">int32_t buffersize</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">546</td>
+          <td class="col-name"><code>tracker_action</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int action</span>, <span class="arg">char *buffer</span>, <span class="arg">size_t buffer_size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">547</td>
+          <td class="col-name"><code>debug_syscall_reject</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint64_t packed_selectors</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">548</td>
+          <td class="col-name"><code>sys_debug_syscall_reject_config</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint64_t packed_selectors1</span>, <span class="arg">uint64_t packed_selectors2</span>, <span class="arg">uint64_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">549</td>
+          <td class="col-name"><code>graftdmg</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int dmg_fd</span>, <span class="arg">const char *mountdir</span>, <span class="arg">uint32_t graft_type</span>, <span class="arg">graftdmg_args_un *gda</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">550</td>
+          <td class="col-name"><code>map_with_linking_np</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">void *regions</span>, <span class="arg">uint32_t region_count</span>, <span class="arg">void *link_info</span>, <span class="arg">uint32_t link_info_size</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">551</td>
+          <td class="col-name"><code>freadlink</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t buf</span>, <span class="arg">user_size_t bufsize</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">552</td>
+          <td class="col-name"><code>sys_record_system_event</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint32_t type</span>, <span class="arg">uint32_t subsystem</span>, <span class="arg">const char *event</span>, <span class="arg">const char *payload</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">553</td>
+          <td class="col-name"><code>mkfifoat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">int mode</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">554</td>
+          <td class="col-name"><code>mknodat</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">int fd</span>, <span class="arg">user_addr_t path</span>, <span class="arg">int mode</span>, <span class="arg">int dev</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">555</td>
+          <td class="col-name"><code>ungraftdmg</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">const char *mountdir</span>, <span class="arg">uint64_t flags</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">556</td>
+          <td class="col-name"><code>sys_coalition_policy_set</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint64_t cid</span>, <span class="arg">uint32_t flavor</span>, <span class="arg">uint32_t value</span></td>
+        </tr>
+        
+        <tr>
+          <td class="col-nr">557</td>
+          <td class="col-name"><code>sys_coalition_policy_get</code></td>
+          <td class="col-return"><code>int</code></td>
+          <td class="col-args"><span class="arg">uint64_t cid</span>, <span class="arg">uint32_t flavor</span></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+</article>
+
+<script>
+(function() {
+  const input = document.getElementById('syscallSearch');
+  const table = document.getElementById('syscallTable');
+  const tbody = table.querySelector('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const countEl = document.getElementById('syscallCount');
+
+  function updateCount() {
+    const visible = rows.filter(r => r.style.display !== 'none').length;
+    countEl.textContent = visible + ' / ' + rows.length + ' syscalls';
+  }
+
+  input.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    rows.forEach(function(row) {
+      if (!q) { row.style.display = ''; return; }
+      const nr = row.cells[0].textContent;
+      const name = row.cells[1].textContent.toLowerCase();
+      const ret = row.cells[2].textContent.toLowerCase();
+      const args = row.cells[3].textContent.toLowerCase();
+      const match = name.includes(q) || nr === q || ret.includes(q) || args.includes(q);
+      row.style.display = match ? '' : 'none';
+    });
+    updateCount();
+  });
+
+  
+  let sortDir = {};
+  table.querySelectorAll('th[data-sort]').forEach(function(th) {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', function() {
+      const key = this.dataset.sort;
+      sortDir[key] = !sortDir[key];
+      rows.sort(function(a, b) {
+        let va, vb;
+        if (key === 'nr') {
+          va = parseInt(a.cells[0].textContent);
+          vb = parseInt(b.cells[0].textContent);
+        } else if (key === 'name') {
+          va = a.cells[1].textContent.toLowerCase();
+          vb = b.cells[1].textContent.toLowerCase();
+        } else {
+          va = a.cells[2].textContent.toLowerCase();
+          vb = b.cells[2].textContent.toLowerCase();
+        }
+        if (va < vb) return sortDir[key] ? -1 : 1;
+        if (va > vb) return sortDir[key] ? 1 : -1;
+        return 0;
+      });
+      rows.forEach(function(row) { tbody.appendChild(row); });
+    });
+  });
+
+  updateCount();
+})();
+</script>
+
+<br>
+<hr>
+
+<ul style="display: flex; list-style-type:none; justify-content: center; gap: 10px; ">
+
+    <li><a href="https://en.wikipedia.org/wiki/Rage-baiting" target=_blank><img src="../../../images/hatemac.jpg" width="88" height="31" alt="ragebait" /></a>
+
+    <li><a target=_blank><img src="../../../images/best_viewed_with_eyes.gif" width="88" height="31" alt="Big Brother" /></a>
+
+</ul>
+</div>
+        </main>
+
+  
+  <script
+    defer
+    type="text/javascript"
+    src="/js/process.min.f1d0d08541dff7184dc2ee55e60baddef27317370fb6c2bbf553a7c82597d90cbcf20f1d329baa6865d19c1d542e254bf62509ff257c5f65a9697a5a3057c547.js"
+    integrity="sha512-8dDQhUHf9xhNwu5V5gut3vJzFzcPtsK79VOnyCWX2Qy88g8dMpuqaGXRnB1ULiVL9iUJ/yV8X2WpaXpaMFfFRw=="></script>
+
+
+        
+    </body>
+</html>
