@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+
+  
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="description here">  
+
+
+  
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="description here" />
+  <meta property="og:image" content="https://hanteed.github.io/images/avatar.png" />
+  <meta property="og:url" content="https://hanteed.github.io/posts/ios-sandbox-internals-pt1/">
+  <meta property="og:title" content="iOS Sandbox Internals - Part I">
+  <meta property="og:site_name" content="hanteed.github.io">
+
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:domain" content="hanteed.github.io">
+  <meta property="twitter:url" content="https://hanteed.github.io/posts/ios-sandbox-internals-pt1/">
+  <meta name="twitter:title" content="iOS Sandbox Internals - Part I">
+  <meta name="twitter:description" content="description here">
+  <meta name="twitter:image" content="https://hanteed.github.io/images/avatar.png">
+  
+  <title>
+    
+      iOS Sandbox Internals - Part I
+    
+  </title>
+
+
+  <link rel="icon" type="image/gif" href="/" />
+   
+
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.2f09471e56274efcb13b55867900d51edfbd6c35635b78049a0457a31cbe2558581863e79640b3ae081631e30132c5abb21453b04608398cf4c67821da26893f.css" integrity="sha512-LwlHHlYnTvyxO1WGeQDVHt&#43;9bDVjW3gEmgRXoxy&#43;JVhYGGPnlkCzrggWMeMBMsWrshRTsEYIOYz0xngh2iaJPw==" />
+
+  
+
+  
+  
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyDiwQ2i5yQ1ovB2aRLBleEKoF-b7bvn8Ns",
+        authDomain: "blog-74cf1.firebaseapp.com",
+        projectId: "blog-74cf1",
+        storageBucket: "blog-74cf1.firebasestorage.app",
+        messagingSenderId: "918222468439",
+        appId: "1:918222468439:web:5f67ed5430881fa0b2fa12",
+        measurementId: ""
+      };
+
+      var app = firebase.initializeApp(firebaseConfig);
+      var db = firebase.firestore();
+      var auth = firebase.auth();
+    </script>
+  
+
+</head>
+
+    <body a="dark">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">/home</a>
+
+
+
+
+<script src="/js/theme-toggle.f10bb0c6283b259e63664053a20ccc48c8b0980e44bceece1c10401c529c2040.js" integrity="sha256-8Quwxig7JZ5jZkBTogzMSMiwmA5EvO7OHBBAHFKcIEA="></script>
+
+<button style="float: right; background: none; outline: none;" onclick="toggleTheme()">
+
+<svg class="w-6 h-6 text-gray-800 dark:text-white theme" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+  <path fill-rule="evenodd" d="M7.05 4.05A7 7 0 0 1 19 9c0 2.407-1.197 3.874-2.186 5.084l-.04.048C15.77 15.362 15 16.34 15 18a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1c0-1.612-.77-2.613-1.78-3.875l-.045-.056C6.193 12.842 5 11.352 5 9a7 7 0 0 1 2.05-4.95ZM9 21a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2h-4a1 1 0 0 1-1-1Zm1.586-13.414A2 2 0 0 1 12 7a1 1 0 1 0 0-2 4 4 0 0 0-4 4 1 1 0 0 0 2 0 2 2 0 0 1 .586-1.414Z" clip-rule="evenodd"/>
+</svg>
+
+</button>
+
+
+
+
+
+
+<div class="article-container">
+  <article class="article-content">
+    <h1>iOS Sandbox Internals - Part I</h1>
+
+    <p class="post-meta">
+      <time datetime="2026-09-06 18:00:00 &#43;0200 CEST">
+        2026-09-06
+      </time>
+      
+      
+      
+        <span class="meta-separator">•</span>
+      
+      
+      
+        <span class="meta-item">
+  
+  
+    
+    
+  
+  <span id="views_posts/ios-sandbox-internals-pt1.md" class="counter-loading" title="views">...</span>
+  <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+  </svg>
+</span>
+
+      
+      
+      
+        <span class="meta-separator">•</span>
+      
+      
+      
+        <span class="meta-item">
+  
+  
+    
+    
+  
+  <span id="likes_posts/ios-sandbox-internals-pt1.md" class="counter-loading" title="likes">...</span>
+  <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+  </svg>
+</span>
+
+      
+      
+      
+        <span class="meta-item">
+  <button id="button_likes" class="like-button" title="Click to like">
+    <svg id="button_likes_heart" class="heart-icon filled" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>
+    <svg id="button_likes_empty_heart" class="heart-icon empty" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+    </svg>
+    <span id="button_likes_text">Like</span>
+  </button>
+</span>
+
+      
+    </p>
+
+    <h2 id="introduction">Introduction</h2>
+<p>Apple&rsquo;s sandbox implementation, named &ldquo;SeatBelt&rdquo;, plays a crucial role in their devices&rsquo; security model.
+The goal of this post is to offer you a clearer view on how it works on iOS.
+This first part will be dedicated to the MACF hooking mechanism. Later
+posts will cover other subjects such as the sandbox profile binary format, sandbox extensions&hellip;</p>
+<p>As you may know, when an app is installed on an iOS device,
+two containers are automatically created for it. Containers are essentially repertories; one is located at <code>/private/var/containers/Bundle/Application/&lt;UUID&gt;/</code> and contains
+the application itself (bundle container). The other one is located at <code>/private/var/mobile/Containers/Data/Application/&lt;UUID&gt;/</code> and contains the application&rsquo;s
+data (data container).</p>
+<p><i>Bundle container structure</i></p>
+<div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/private/var/containers/Bundle/Application/&lt;UUID&gt;/
+</span></span><span style="display:flex;"><span>drwxr-xr-x  <span style="color:#d699b6">3</span> _installd _installd  <span style="color:#d699b6">192</span> Aug <span style="color:#d699b6">16</span> 16:55 ./
+</span></span><span style="display:flex;"><span>drwxr-xr-x <span style="color:#d699b6">39</span> _installd _installd 1.3K Aug <span style="color:#d699b6">16</span> 16:55 ../
+</span></span><span style="display:flex;"><span>-rw-r--r--  <span style="color:#d699b6">1</span> root      _installd  <span style="color:#d699b6">525</span> Aug <span style="color:#d699b6">16</span> 16:55 .com.apple.mobile_container_manager.metadata.plist
+</span></span><span style="display:flex;"><span>-rw-r--r--  <span style="color:#d699b6">1</span> _installd wheel      <span style="color:#d699b6">685</span> Aug <span style="color:#d699b6">16</span> 16:55 BundleMetadata.plist
+</span></span><span style="display:flex;"><span>drwxr-xr-x <span style="color:#d699b6">55</span> _installd _installd 4.5K Aug <span style="color:#d699b6">16</span> 16:55 Signal.app/
+</span></span><span style="display:flex;"><span>-rw-r--r--  <span style="color:#d699b6">1</span> _installd wheel     1.7K Aug <span style="color:#d699b6">16</span> 16:55 iTunesMetadata.plist
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><i>Data container structure</i></p>
+<div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/private/var/mobile/Containers/Data/Application/&lt;UUID&gt;/
+</span></span><span style="display:flex;"><span>drwxr-xr-x   <span style="color:#d699b6">7</span> mobile mobile  <span style="color:#d699b6">256</span> Aug <span style="color:#d699b6">16</span> 16:55 ./
+</span></span><span style="display:flex;"><span>drwxr-xr-x <span style="color:#d699b6">213</span> mobile mobile 6.7K Aug <span style="color:#d699b6">16</span> 16:55 ../
+</span></span><span style="display:flex;"><span>-rw-r--r--   <span style="color:#d699b6">1</span> root   mobile  <span style="color:#d699b6">588</span> Aug <span style="color:#d699b6">16</span> 16:55 .com.apple.mobile_container_manager.metadata.plist
+</span></span><span style="display:flex;"><span>drwxr-xr-x   <span style="color:#d699b6">2</span> mobile mobile   <span style="color:#d699b6">64</span> Aug <span style="color:#d699b6">16</span> 16:55 Documents/
+</span></span><span style="display:flex;"><span>drwxr-xr-x   <span style="color:#d699b6">6</span> mobile mobile  <span style="color:#d699b6">192</span> Aug <span style="color:#d699b6">16</span> 17:21 Library/
+</span></span><span style="display:flex;"><span>drwxr-xr-x   <span style="color:#d699b6">2</span> mobile mobile   <span style="color:#d699b6">96</span> Aug <span style="color:#d699b6">16</span> 16:55 StoreKit/
+</span></span><span style="display:flex;"><span>drwxr-xr-x   <span style="color:#d699b6">2</span> mobile mobile   <span style="color:#d699b6">64</span> Aug <span style="color:#d699b6">16</span> 16:55 SystemData/
+</span></span><span style="display:flex;"><span>drwxr-xr-x   <span style="color:#d699b6">4</span> mobile mobile  <span style="color:#d699b6">128</span> Aug <span style="color:#d699b6">16</span> 16:55 tmp/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>But how can Apple restrict an app from performing certain operations (opening files it shouldn&rsquo;t for example) ?</p>
+<h2 id="the-macf-hooking-mechanism">The MACF hooking mechanism</h2>
+<p>The sandbox is mandatory for all third party applications, it allows the system to filter what each process is able to do.
+It is implemented at  kernel level as Mandatory Access Control Framework (MACF) hooks.
+MACF&rsquo;s role is to intercept critical operations an app may want to perform, before handing it to policies that define whether or not the application is allowed to do what is wants.</p>
+<p>Multiple policies can live together, a single hook can be implemented by multiple policies, in which case the different callbacks would all be called successively. Some of the most notorious security policies are the Apple Mobile File Integrity (AMFI) and SeatBelt, which we will talk about.</p>
+<h3 id="registering-macf-policies">Registering MACF policies</h3>
+<p>We will now see how Apple declares sandbox policies and how those are registered inside the kernel. We will take a look at the structures defining the policies and how they map MAC operations to the corresponding policies&rsquo; s hooks (while focusing on SeatBelt).</p>
+<p>To do so, we will use a symbolicated kernel cache from iOS 26.3.</p>
+<p>Policies are registered through kernel extensions, such as the <code>com.apple.security.sandbox</code> extension by using entry points.</p>
+<p>Entry points are operations the policy modules can hook into, they are usually built the same way, by starting with <code>mpo_</code> and specifying an object and an operation (example: <code>mpo_vnode_check_open</code>).</p>
+<p>The hooks are predefined points enforcing security policies that can then trigger policy callbacks.
+Callbacks are functions bound to entry points that define whether the operation should be allowed or denied.</p>
+<p>Opening the <code>com.apple.security.sandbox</code> allows us to see several hooks (I&rsquo;m using Binary Ninja&rsquo;s kernel cache triage for this):</p>
+<div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">14
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">15
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">16
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">17
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>_hook_vnode_notify_setflags
+</span></span><span style="display:flex;"><span>_hook_vnode_check_unlink
+</span></span><span style="display:flex;"><span>_hook_vnode_check_swap
+</span></span><span style="display:flex;"><span>_hook_vnode_check_rename
+</span></span><span style="display:flex;"><span>_hook_vnode_check_exec
+</span></span><span style="display:flex;"><span>_hook_vnode_check_create
+</span></span><span style="display:flex;"><span>_hook_vnode_check_clone
+</span></span><span style="display:flex;"><span>_hook_vnode_notify_rename
+</span></span><span style="display:flex;"><span>_hook_thread_userret
+</span></span><span style="display:flex;"><span>_hook_system_check_sysctlbyname
+</span></span><span style="display:flex;"><span>_hook_pty_notify_grant
+</span></span><span style="display:flex;"><span>_hook_proc_notify_exec_complete
+</span></span><span style="display:flex;"><span>_hook_proc_check_get_task_with_flavor
+</span></span><span style="display:flex;"><span>_hook_policy_syscall
+</span></span><span style="display:flex;"><span>_hook_policy_init
+</span></span><span style="display:flex;"><span>_hook_mount_check_mount_late
+</span></span><span style="display:flex;"><span>_hook_cred_label_update_execve 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Sandbox policies are defined through the <code>mac_policy_conf</code> structure, by specifying a policy name, a full name,
+and a <code>mac_policy_ops</code> structure containing the different operations.
+Searching for <code>mac_policy</code> xrefs leads us to the <code>_kmod_start()</code> function:</p>
+<img src="/images/_kmod_start.png" alt="_kmod_start">
+<p>Here is the <a href="https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/security/mac_policy.h#L6406">declaration</a> of the <code>mac_policy_register</code> function:</p>
+<div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#859289;font-style:italic">//xnu/security/mac_policy.h
+</span></span></span><span style="display:flex;"><span><span style="color:#dbbc7f">int</span> <span style="color:#b2c98f">mac_policy_register</span>(<span style="color:#e67e80">struct</span> mac_policy_conf <span style="color:#7a8478">*</span>mpc, <span style="color:#dbbc7f">mac_policy_handle_t</span> <span style="color:#7a8478">*</span>handlep, <span style="color:#dbbc7f">void</span> <span style="color:#7a8478">*</span>xd);
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Here is how <code>mac_policy_conf</code> is <a href="https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/security/mac_policy.h#L6386">defined</a>:</p>
+<div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">14
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">15
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#859289;font-style:italic">//xnu/security/mac_policy.h
+</span></span></span><span style="display:flex;"><span><span style="color:#e67e80">struct</span> mac_policy_conf {
+</span></span><span style="display:flex;"><span>	<span style="color:#e67e80">const</span> <span style="color:#dbbc7f">char</span>              <span style="color:#7a8478">*</span>mpc_name;              
+</span></span><span style="display:flex;"><span>	<span style="color:#e67e80">const</span> <span style="color:#dbbc7f">char</span>              <span style="color:#7a8478">*</span>mpc_fullname;          
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">char</span> <span style="color:#e67e80">const</span> <span style="color:#7a8478">*</span> <span style="color:#e67e80">const</span> <span style="color:#7a8478">*</span>mpc_labelnames;             
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">unsigned</span> <span style="color:#dbbc7f">int</span>             mpc_labelname_count;   
+</span></span><span style="display:flex;"><span>	<span style="color:#e67e80">const</span> <span style="color:#e67e80">struct</span> mac_policy_ops <span style="color:#7a8478">*</span>mpc_ops; <span style="color:#859289;font-style:italic">// operation vector
+</span></span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">int</span>                      mpc_loadtime_flags;    
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">int</span>                     <span style="color:#7a8478">*</span>mpc_field_off;         
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">int</span>                      mpc_runtime_flags;     
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mpc_t</span>                    mpc_list;              
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">void</span>                    <span style="color:#7a8478">*</span>mpc_data;              
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">#define mpc_t   struct mac_policy_conf *
+</span></span></span><span style="display:flex;"><span><span style="color:#859289;font-style:italic">// Note: I&#39;ve deleted some comments for clarity purposes
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>Defining the struct inside of our disassembler, allows us to have a clean representation of how the SeatBelt sandbox policy is registered:</p>
+<img src="/images/mac_policy_conf.png" alt="_kmod_start">
+<p>By reconstructing the <code>mac_policy_ops</code> structure (<a href="https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/security/mac_policy.h#L5967">see definition</a>), we can identify callbacks that were not symbolicated.</p>
+<details><summary>mac_policy_ops</summary>
+<div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">  1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">  2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">  3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">  4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">  5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">  6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">  7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">  8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">  9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 14
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 15
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 16
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 17
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 18
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 19
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 20
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 21
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 22
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 23
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 24
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 25
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 26
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 27
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 28
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 29
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 30
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 31
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 32
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 33
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 34
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 35
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 36
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 37
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 38
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 39
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 40
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 41
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 42
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 43
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 44
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 45
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 46
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 47
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 48
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 49
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 50
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 51
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 52
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 53
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 54
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 55
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 56
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 57
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 58
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 59
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 60
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 61
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 62
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 63
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 64
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 65
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 66
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 67
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 68
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 69
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 70
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 71
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 72
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 73
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 74
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 75
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 76
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 77
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 78
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 79
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 80
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 81
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 82
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 83
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 84
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 85
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 86
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 87
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 88
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 89
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 90
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 91
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 92
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 93
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 94
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 95
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 96
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 97
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 98
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 99
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">100
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">101
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">102
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">103
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">104
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">105
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">106
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">107
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">108
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">109
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">110
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">111
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">112
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">113
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">114
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">115
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">116
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">117
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">118
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">119
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">120
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">121
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">122
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">123
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">124
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">125
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">126
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">127
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">128
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">129
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">130
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">131
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">132
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">133
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">134
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">135
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">136
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">137
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">138
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">139
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">140
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">141
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">142
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">143
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">144
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">145
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">146
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">147
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">148
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">149
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">150
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">151
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">152
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">153
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">154
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">155
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">156
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">157
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">158
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">159
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">160
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">161
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">162
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">163
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">164
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">165
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">166
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">167
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">168
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">169
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">170
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">171
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">172
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">173
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">174
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">175
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">176
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">177
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">178
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">179
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">180
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">181
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">182
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">183
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">184
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">185
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">186
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">187
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">188
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">189
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">190
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">191
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">192
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">193
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">194
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">195
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">196
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">197
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">198
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">199
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">200
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">201
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">202
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">203
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">204
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">205
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">206
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">207
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">208
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">209
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">210
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">211
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">212
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">213
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">214
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">215
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">216
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">217
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">218
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">219
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">220
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">221
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">222
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">223
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">224
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">225
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">226
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">227
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">228
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">229
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">230
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">231
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">232
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">233
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">234
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">235
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">236
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">237
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">238
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">239
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">240
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">241
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">242
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">243
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">244
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">245
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">246
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">247
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">248
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">249
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">250
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">251
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">252
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">253
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">254
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">255
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">256
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">257
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">258
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">259
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">260
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">261
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">262
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">263
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">264
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">265
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">266
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">267
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">268
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">269
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">270
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">271
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">272
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">273
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">274
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">275
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">276
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">277
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">278
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">279
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">280
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">281
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">282
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">283
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">284
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">285
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">286
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">287
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">288
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">289
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">290
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">291
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">292
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">293
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">294
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">295
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">296
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">297
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">298
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">299
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">300
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">301
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">302
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">303
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">304
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">305
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">306
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">307
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">308
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">309
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">310
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">311
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">312
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">313
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">314
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">315
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">316
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">317
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">318
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">319
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">320
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">321
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">322
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">323
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">324
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">325
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">326
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">327
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">328
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">329
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">330
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">331
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">332
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">333
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">334
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">335
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">336
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">337
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">338
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">339
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">340
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">341
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">342
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">343
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">344
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">345
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">346
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">347
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">348
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">349
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">350
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">351
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">352
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">353
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">354
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">355
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">356
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">357
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">358
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">359
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">360
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">361
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">362
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">363
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">364
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">365
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">366
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">367
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">368
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">369
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">370
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">371
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">372
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">373
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">374
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">375
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">376
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">377
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">378
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">379
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">380
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">381
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">382
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">383
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">384
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">385
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">386
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">387
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">388
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#e67e80">typedef</span> <span style="color:#b2c98f">void</span> (<span style="color:#7a8478">*</span><span style="color:#dbbc7f">mac_hook_t</span>)(<span style="color:#dbbc7f">void</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">struct</span> mac_policy_ops {
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_audit_check_postselect;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_audit_check_preselect;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_graft_check_graft;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_graft_check_ungraft;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_graft_notify_graft;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_graft_notify_ungraft;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_check_label_update_execve;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_check_label_update;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_check_visible;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_label_associate_fork;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_label_associate_kernel;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_label_associate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_label_associate_user;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_label_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_label_externalize_audit;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_label_externalize;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_label_init;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_label_internalize;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_label_update_execve;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_cred_label_update;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_devfs_label_associate_device;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_devfs_label_associate_directory;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_devfs_label_copy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_devfs_label_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_devfs_label_init;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_devfs_label_update;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_change_offset;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_create;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_dup;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_fcntl;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_get_offset;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_get;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_inherit;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_ioctl;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_lock;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_mmap_downgrade;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_mmap;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_receive;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_set;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_label_init;       <span style="color:#859289;font-style:italic">/* deprecated not called anymore */</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_label_destroy;    <span style="color:#859289;font-style:italic">/* deprecated not called anymore */</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_label_associate;  <span style="color:#859289;font-style:italic">/* deprecated not called anymore */</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_notify_close;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_launch_constraints;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_notify_service_port_derive;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> <span style="color:#7a8478">*</span>mpo_proc_check_set_task_exception_port;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span>  <span style="color:#7a8478">*</span>mpo_proc_check_set_thread_exception_port;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved08;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved09;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved10;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved11;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved12;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved13;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved14;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved15;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved16;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved17;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved18;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved19;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved20;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved21;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved22;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_necp_check_open;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_necp_check_client_action;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_file_check_library_validation;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_setacl;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_setattrlist;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_setextattr;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_setflags;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_setmode;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_setowner;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_setutimes;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_truncate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_getattrlistbulk;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_get_task_special_port;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_set_task_special_port;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_swap;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_unlink;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_swap;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_dataprotect_set;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_remount_with_flags;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_notify_mount;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_copyfile;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_quotactl;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_fsctl;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_getattr;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_label_update;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_mount;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_remount;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_setattr;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_stat;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_umount;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_label_associate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_label_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_label_externalize;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_label_init;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_label_internalize;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> <span style="color:#7a8478">*</span>mpo_proc_check_expose_task_with_flavor;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_get_task_with_flavor;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_task_id_token_get_task;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_pipe_check_ioctl;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_pipe_check_kqfilter;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved41;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_pipe_check_read;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_pipe_check_select;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_pipe_check_stat;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_pipe_check_write;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_pipe_label_associate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved42;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_pipe_label_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved43;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_pipe_label_init;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved44;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_syscall_mac;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_policy_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_policy_init;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_policy_initbsd;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_policy_syscall;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_sysctlbyname;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_inherit_ipc_ports;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_rename;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_kext_check_query;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_notify_exec_complete;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_notify_cs_invalidated;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_syscall_unix;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved45;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_set_host_special_port;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> <span style="color:#7a8478">*</span>mpo_proc_check_set_host_exception_port;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_exc_action_check_exception_send;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_exc_action_label_associate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_exc_action_label_populate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_exc_action_label_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_exc_action_label_init;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_exc_action_label_update;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_trigger_resolve;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_mount_late;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_snapshot_mount;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_reclaim;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_skywalk_flow_check_connect;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_skywalk_flow_check_listen;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixsem_check_create;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixsem_check_open;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixsem_check_post;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixsem_check_unlink;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixsem_check_wait;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixsem_label_associate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixsem_label_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixsem_label_init;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixshm_check_create;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixshm_check_mmap;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixshm_check_open;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixshm_check_stat;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixshm_check_truncate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixshm_check_unlink;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixshm_label_associate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixshm_label_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_posixshm_label_init;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_debug;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_fork;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved61;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved62;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_getaudit;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_getauid;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved63;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_mprotect;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_sched;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_setaudit;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_setauid;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_iopolicysys;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_signal;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_wait;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_dump_core;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_remote_thread_create;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_accept;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_accepted;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_bind;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_connect;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_create;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved46;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved47;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved48;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_listen;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_receive;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_received;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved49;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_send;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_stat;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_setsockopt;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_getsockopt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_get_movable_control_port;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_dyld_process_info_notify_register;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_setuid;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_seteuid;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_setreuid;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_setgid;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_setegid;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_setregid;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_settid;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_memorystatus_control;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_reserved60;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_thread_telemetry;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_iokit_check_open_service;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_acct;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_audit;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_auditctl;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_auditon;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_host_priv;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_nfsd;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_reboot;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_settime;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_swapoff;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_swapon;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_socket_check_ioctl;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsg_label_associate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsg_label_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsg_label_init;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsg_label_recycle;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsq_check_enqueue;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsq_check_msgrcv;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsq_check_msgrmid;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsq_check_msqctl;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsq_check_msqget;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsq_check_msqrcv;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsq_check_msqsnd;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsq_label_associate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsq_label_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsq_label_init;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvmsq_label_recycle;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvsem_check_semctl;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvsem_check_semget;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvsem_check_semop;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvsem_label_associate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvsem_label_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvsem_label_init;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvsem_label_recycle;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvshm_check_shmat;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvshm_check_shmctl;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvshm_check_shmdt;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvshm_check_shmget;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvshm_label_associate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvshm_label_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvshm_label_init;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_sysvshm_label_recycle;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_notify_exit;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_snapshot_revert;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_getattr;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_snapshot_create;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_mount_check_snapshot_delete;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_clone;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_get_cs_info;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_set_cs_info;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_iokit_check_hid_control;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_access;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_chdir;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_chroot;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_create;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_deleteextattr;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_exchangedata;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_exec;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_getattrlist;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_getextattr;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_ioctl;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_kqfilter;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_label_update;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_link;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_listextattr;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_lookup;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_open;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_read;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_readdir;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_readlink;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_rename_from;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_rename_to;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_revoke;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_select;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_setattrlist;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_setextattr;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_setflags;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_setmode;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_setowner;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_setutimes;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_stat;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_truncate;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_unlink;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_write;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_associate_devfs;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_associate_extattr;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_associate_file;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_associate_pipe;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_associate_posixsem;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_associate_posixshm;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_associate_singlelabel;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_associate_socket;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_copy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_destroy;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_externalize_audit;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_externalize;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_init;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_internalize;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_recycle;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_store;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_update_extattr;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_label_update;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_create;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_signature;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_uipc_bind;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_uipc_connect;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_run_cs_invalid;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_suspend_resume;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_thread_userret;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_iokit_check_set_properties;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> <span style="color:#7a8478">*</span>mpo_vnode_check_supplemental_signature;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_searchfs;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_priv_check;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_priv_grant;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_map_anon;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_fsgetpath;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_iokit_check_open;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_ledger;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_rename;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_setacl;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_deleteextattr;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_kas_info;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_check_lookup_preflight;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_open;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_system_check_info;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_pty_notify_grant;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_pty_notify_close;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_find_sigs;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_kext_check_load;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_kext_check_unload;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_proc_check_proc_info;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_vnode_notify_link;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_iokit_check_filter_properties;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">mac_hook_t</span> mpo_iokit_check_get_property;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></td></tr></table>
+</div>
+</div></details>
+<h3 id="recovering-the-hooks">Recovering the hooks</h3>
+<p>Now that we&rsquo;ve defined the types inside of our disassembler, we can associate the hooks with their callbacks. Here, for example, the function pointer stored in <code>mpo_vnode_check_open</code> points to an unnamed function, allowing us to identify it as <code>_hook_vnode_check_open</code>.</p>
+<img src="/images/mac_policy_ops.png" alt="mac_policy_ops">
+<h3 id="fastening-your-seatbelt">Fastening your SeatBelt</h3>
+<p>In the first part, we briefly saw that XNU provides hooking capabilities thourgh the MACF framework. In this section, we will take a greater look at this mechanism.</p>
+<p>Let&rsquo;s look at what happens when you perform an <code>open()</code> call.
+In our case, our dummy app benefits from the same default sandbox profile as other third party apps, but how is it defined ?s</p>
+<p>When our app does an <code>open()</code>, the <code>unix_syscall()</code> dispatcher will take the value of the syscall and  find the correct kernel function to call by looking at the <code>sysent</code> table.
+The execution flow eventually reaches <code>vn_open_auth()</code>:</p>
+<img src="/images/vn_open_auth.png" alt="vn_open_auth">
+<p><code>vn_authorize_open_existing()</code> then calls <code>mac_vnode_check_open()</code>, which dispatches the <code>vnode_check_open</code> operation through the MAC Framework.</p>
+<p><code>mac_vnode_check_open</code>&rsquo;s role is to enforce the policy checks, for this, it uses a <code>MAC_CHECK</code> macro which will handle the whole logic.</p>
+<div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">14
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">15
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">16
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">17
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">18
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">19
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">20
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">21
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#859289;font-style:italic">// xnu/mac_vfs.c
+</span></span></span><span style="display:flex;"><span><span style="color:#dbbc7f">int</span> <span style="color:#b2c98f">mac_vnode_check_open</span>(<span style="color:#dbbc7f">vfs_context_t</span> ctx, <span style="color:#e67e80">struct</span> vnode <span style="color:#7a8478">*</span>vp, <span style="color:#dbbc7f">int</span> acc_mode)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">kauth_cred_t</span> cred;
+</span></span><span style="display:flex;"><span>	<span style="color:#dbbc7f">int</span> error;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">#if SECURITY_MAC_CHECK_ENFORCE
+</span></span></span><span style="display:flex;"><span>	<span style="color:#859289;font-style:italic">/* 21167099 - only check if we allow write */</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e67e80">if</span> (<span style="color:#7a8478">!</span>mac_vnode_enforce) {
+</span></span><span style="display:flex;"><span>		<span style="color:#e67e80">return</span> <span style="color:#d699b6">0</span>;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">#endif
+</span></span></span><span style="display:flex;"><span>	cred <span style="color:#7a8478">=</span> <span style="color:#b2c98f">vfs_context_ucred</span>(ctx);
+</span></span><span style="display:flex;"><span>	<span style="color:#e67e80">if</span> (<span style="color:#7a8478">!</span><span style="color:#b2c98f">mac_cred_check_enforce</span>(cred)) {
+</span></span><span style="display:flex;"><span>		<span style="color:#e67e80">return</span> <span style="color:#d699b6">0</span>;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#b2c98f">VFS_KERNEL_DEBUG_START1</span>(<span style="color:#d699b6">52</span>, vp);
+</span></span><span style="display:flex;"><span>	<span style="color:#b2c98f">MAC_CHECK</span>(vnode_check_open, cred, vp, <span style="color:#b2c98f">mac_vnode_label</span>(vp), acc_mode);
+</span></span><span style="display:flex;"><span>	<span style="color:#b2c98f">VFS_KERNEL_DEBUG_END1</span>(<span style="color:#d699b6">52</span>, vp);
+</span></span><span style="display:flex;"><span>	<span style="color:#e67e80">return</span> error;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>MAC_CHECK</code> performs the check by walking through the policy module list,
+goes through the operations list (<code>mac_policy_ops</code>) and searches for the corresponding operation slot name <code>mpo_ + vnode_check_open</code> pointing to the function to execute (which in this case is <code>_hook_vnode_check_open()</code>) thanks to the <code>MAC_POLICY_ITERATE</code> macro.</p>
+<div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">14
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">15
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">16
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">17
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">18
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">19
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">20
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">21
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">22
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">23
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">24
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">25
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">26
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">27
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">28
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">29
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">30
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">31
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">32
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">33
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">34
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">35
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">36
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">37
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">38
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">39
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6b655a">40
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#859289;font-style:italic">// xnu/security/mac_internal.h
+</span></span></span><span style="display:flex;"><span><span style="color:#e67e80">struct</span> mac_policy_list_element {
+</span></span><span style="display:flex;"><span>	<span style="color:#e67e80">struct</span> mac_policy_conf <span style="color:#7a8478">*</span>mpc;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">#define MAC_CHECK(check, args...) do {                            
+</span></span></span><span style="display:flex;"><span>    error <span style="color:#7a8478">=</span> <span style="color:#d699b6">0</span>;                                                    
+</span></span><span style="display:flex;"><span>    <span style="color:#b2c98f">MAC_POLICY_ITERATE</span>({                                          
+</span></span><span style="display:flex;"><span>	    <span style="color:#e67e80">if</span> (mpc<span style="color:#7a8478">-&gt;</span>mpc_ops<span style="color:#7a8478">-&gt;</span>mpo_ ## check <span style="color:#7a8478">!=</span> <span style="color:#d699b6">NULL</span>) {                  
+</span></span><span style="display:flex;"><span>	            <span style="color:#b2c98f">MAC_CHECK_CALL</span>(check, mpc);                         
+</span></span><span style="display:flex;"><span>	            <span style="color:#dbbc7f">int</span> __step_err <span style="color:#7a8478">=</span> mpc<span style="color:#7a8478">-&gt;</span>mpc_ops<span style="color:#7a8478">-&gt;</span>mpo_ ## <span style="color:#b2c98f">check</span> (args);
+</span></span><span style="display:flex;"><span>	            <span style="color:#b2c98f">MAC_CHECK_RSLT</span>(check, mpc);                         
+</span></span><span style="display:flex;"><span>	            error <span style="color:#7a8478">=</span> <span style="color:#b2c98f">mac_error_select</span>(__step_err, error);        
+</span></span><span style="display:flex;"><span>	    }                                                           
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>} <span style="color:#e67e80">while</span> (<span style="color:#d699b6">0</span>)
+</span></span><span style="display:flex;"><span><span style="color:#e67e80">#define MAC_POLICY_ITERATE(...) do {                         
+</span></span></span><span style="display:flex;"><span>    <span style="color:#e67e80">struct</span> mac_policy_conf <span style="color:#7a8478">*</span>mpc;                             
+</span></span><span style="display:flex;"><span>    u_int i;                                                 
+</span></span><span style="display:flex;"><span>                                                             
+</span></span><span style="display:flex;"><span>    <span style="color:#e67e80">for</span> (i <span style="color:#7a8478">=</span> <span style="color:#d699b6">0</span>; i <span style="color:#7a8478">&lt;</span> mac_policy_list.staticmax; i<span style="color:#7a8478">++</span>) {        
+</span></span><span style="display:flex;"><span>	    mpc <span style="color:#7a8478">=</span> mac_policy_list.entries[i].mpc;                  
+</span></span><span style="display:flex;"><span>	    <span style="color:#e67e80">if</span> (mpc <span style="color:#7a8478">==</span> <span style="color:#d699b6">NULL</span>)                                       
+</span></span><span style="display:flex;"><span>	            <span style="color:#e67e80">continue</span>;                                      
+</span></span><span style="display:flex;"><span>                                                             
+</span></span><span style="display:flex;"><span>	    __VA_ARGS__                                            
+</span></span><span style="display:flex;"><span>    }                                                        
+</span></span><span style="display:flex;"><span>    <span style="color:#e67e80">if</span> (<span style="color:#b2c98f">mac_policy_list_conditional_busy</span>() <span style="color:#7a8478">!=</span> <span style="color:#d699b6">0</span>) {           
+</span></span><span style="display:flex;"><span>	    <span style="color:#e67e80">for</span> (; i <span style="color:#7a8478">&lt;=</span> mac_policy_list.maxindex; i<span style="color:#7a8478">++</span>) {           
+</span></span><span style="display:flex;"><span>	            mpc <span style="color:#7a8478">=</span> mac_policy_list.entries[i].mpc;          
+</span></span><span style="display:flex;"><span>	            <span style="color:#e67e80">if</span> (mpc <span style="color:#7a8478">==</span> <span style="color:#d699b6">NULL</span>)                               
+</span></span><span style="display:flex;"><span>	                    <span style="color:#e67e80">continue</span>;                              
+</span></span><span style="display:flex;"><span>                                                             
+</span></span><span style="display:flex;"><span>	            __VA_ARGS__                                    
+</span></span><span style="display:flex;"><span>	    }                                                      
+</span></span><span style="display:flex;"><span>	    <span style="color:#b2c98f">mac_policy_list_unbusy</span>();                              
+</span></span><span style="display:flex;"><span>    }                                                        
+</span></span><span style="display:flex;"><span>} <span style="color:#e67e80">while</span> (<span style="color:#d699b6">0</span>)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Looking at <code>mac_vnode_check_open</code>&rsquo;s decompiled code, you can recognize the macro being dispatched with the offset 0x858 corresponding to the offset to <code>mpo_vnode_check_open</code> inside the <code>mac_policy_ops</code> structure:</p>
+<p>Here is a screenshot of the structure showing the offset:
+<img src="/images/mpo_vnode_check_open-offset.png" alt="mpo_vnode_check_open offset"></p>
+<p>And here is the decompiled code showing the macro being called:
+<img src="/images/mac_vnode_check_open.png" alt="mac_vnode_check_open"></p>
+<p><code>_hook_vnode_check_open()</code> is then eventually executed, calling <code>_sb_evaluate_internal()</code> to evaluate if the operation is to be allowed, taking into account the process&rsquo;s assigned sandbox profile.</p>
+<p>Here is a visual representation showcasing what happens from the <code>open()</code> to the security evaluation by SeatBelt:</p>
+<p><br><img class="diagram diagram-light" src="/images/syscall-to-seatbelt-light.svg" alt="syscall to seatbelt" style="width: 115%; max-width: none; height: auto; margin-left: -5%;">
+<img class="diagram diagram-dark" src="/images/syscall-to-seatbelt-dark.svg" alt="syscall to seatbelt" style="width: 115%; max-width: none; height: auto; margin-left: -5%;"></p>
+<h2 id="conclusion">Conclusion</h2>
+<p>In this first part, we looked at how SeatBelt integrates with XNU&rsquo;s Mandatory Access Control Framework and how a filesystem operation eventually reaches the security policies.
+We now know how the kernel implements the sandbox. What remains is to understand what is evaluates; the sandbox profiles themselves. A later blogpost will focus
+on understanding the binary format and how SeatBelt interprets them.</p>
+<p>References:</p>
+<ul>
+<li>Jonathan Levin - *OS internals Volume III Security &amp; Insecurity
+<br><a href="https://newosxbook.com/home.html">https://newosxbook.com/home.html</a></li>
+<li>Billy Ellis - How do hackers escape the sandbox?
+<br><a href="https://www.youtube.com/watch?v=E6etGQaVJC0&amp;t=87s">https://www.youtube.com/watch?v=E6etGQaVJC0&amp;t=87s</a></li>
+<li>Karol Mazurek - MACF on macOS
+<br><a href="https://karol-mazurek.medium.com/macf-on-macos-004b8a490e2c">https://karol-mazurek.medium.com/macf-on-macos-004b8a490e2c</a></li>
+</ul>
+
+  </article>
+
+  
+  
+    <aside class="toc-sidebar">
+      <nav class="toc-nav">
+        <h3 class="toc-title">Table of Contents</h3>
+        <div class="toc-content">
+          <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#the-macf-hooking-mechanism">The MACF hooking mechanism</a>
+          <ul>
+            <li><a href="#registering-macf-policies">Registering MACF policies</a></li>
+            <li><a href="#recovering-the-hooks">Recovering the hooks</a></li>
+            <li><a href="#fastening-your-seatbelt">Fastening your SeatBelt</a></li>
+          </ul>
+        </li>
+        <li><a href="#conclusion">Conclusion</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+        </div>
+      </nav>
+    </aside>
+  
+</div>
+
+
+
+  
+  
+  
+    
+    <script
+      type="text/javascript"
+      src="/js/page.min.b791cafa46b01f6c8853d5689937d332a3d6bca245efd1d1b532cde15aee0283398a6d6be38548255ecdc06205d0e258e7bf58ccc93785c7b3f42d2dad0bc1bb.js"
+      integrity="sha512-t5HK&#43;kawH2yIU9VomTfTMqPWvKJF79HRtTLN4VruAoM5im1r44VIJV7NwGIF0OJY579YzMk3hcez9C0trQvBuw=="
+      data-oid="views_posts/ios-sandbox-internals-pt1.md"
+      data-oid-likes="likes_posts/ios-sandbox-internals-pt1.md"></script>
+  
+
+
+<br>
+<hr>
+
+<ul style="display: flex; list-style-type:none; justify-content: center; gap: 10px; ">
+
+    <li><a href="https://en.wikipedia.org/wiki/Rage-baiting" target=_blank><img src="../../../images/hatemac.jpg" width="88" height="31" alt="ragebait" /></a>
+
+    <li><a target=_blank><img src="../../../images/best_viewed_with_eyes.gif" width="88" height="31" alt="Big Brother" /></a>
+
+</ul>
+</div>
+        </main>
+
+  
+  <script
+    defer
+    type="text/javascript"
+    src="/js/process.min.f1d0d08541dff7184dc2ee55e60baddef27317370fb6c2bbf553a7c82597d90cbcf20f1d329baa6865d19c1d542e254bf62509ff257c5f65a9697a5a3057c547.js"
+    integrity="sha512-8dDQhUHf9xhNwu5V5gut3vJzFzcPtsK79VOnyCWX2Qy88g8dMpuqaGXRnB1ULiVL9iUJ/yV8X2WpaXpaMFfFRw=="></script>
+
+
+        
+          
+          
+            
+            <script
+              defer
+              type="text/javascript"
+              src="/js/toc-scroll.min.0f175c13d38b68ec23bb1680a85b5c255ad30a14642ff0941501cb8a509bf4c45e8e268e836491cd2b006cfdea7adc5d1a78b4f02622b70c05db41040fe6036e.js"
+              integrity="sha512-DxdcE9OLaOwjuxaAqFtcJVrTChRkL/CUFQHLilCb9MRejiaOg2SRzSsAbP3qetxdGni08CYitwwF20EED&#43;YDbg=="></script>
+          
+        
+    </body>
+</html>
