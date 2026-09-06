@@ -266,7 +266,7 @@ Callbacks are functions bound to entry points that define whether the operation 
 </div><p>Sandbox policies are defined through the <code>mac_policy_conf</code> structure, by specifying a policy name, a full name,
 and a <code>mac_policy_ops</code> structure containing the different operations.
 Searching for <code>mac_policy</code> xrefs leads us to the <code>_kmod_start()</code> function:</p>
-<img src="/images/_kmod_start.png" alt="_kmod_start">
+<img src="/images/kmod_start.png" alt="_kmod_start">
 <p>Here is the <a href="https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/security/mac_policy.h#L6406">declaration</a> of the <code>mac_policy_register</code> function:</p>
 <div class="highlight"><div style="color:#d6cbb4;background-color:#252b2e;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;">
 <table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
